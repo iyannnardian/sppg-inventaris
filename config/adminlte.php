@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<i class="fas fa-box-open mr-2 text-white"></i>StockFlow',
+    'logo' => '<i class="fas fa-box-open mr-2 text-white"></i>Inventaris',
     'logo_img' => '',
     // 'logo_img_class' => 'brand-image img-circle elevation-3',
     // 'logo_img_xl' => null,

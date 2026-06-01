@@ -10,8 +10,8 @@
         </div>
         @if(Auth::user()->role !== 'kepala dapur')
             <div class="d-flex gap-2">
-                <button class="btn btn-success" data-toggle="modal" data-target="#modalTambahMasuk"><i class="fas fa-arrow-down mr-1"></i> Quick In (Masuk)</button>
-                <button class="btn btn-danger ml-1" data-toggle="modal" data-target="#modalTambahKeluar"><i class="fas fa-arrow-up mr-1"></i> Quick Out (Keluar)</button>
+                <button class="btn btn-success" data-toggle="modal" data-target="#modalTambahMasuk"><i class="fas fa-arrow-down mr-1"></i> Barang Masuk</button>
+                <button class="btn btn-danger ml-1" data-toggle="modal" data-target="#modalTambahKeluar"><i class="fas fa-arrow-up mr-1"></i> Barang Keluar</button>
             </div>
         @endif
     </div>
