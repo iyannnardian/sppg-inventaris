@@ -62,7 +62,6 @@
             color: #ffffff !important;
             font-weight: 600;
             box-shadow: none !important;
-            border-left: 3px solid #ffb300 !important;
         }
     </style>
 @stop

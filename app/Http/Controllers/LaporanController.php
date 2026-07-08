@@ -145,20 +145,20 @@ class LaporanController extends Controller
         echo '<tr><th colspan="8" style="font-size: 14px; font-weight: bold; text-align: center; font-family: Arial; border: none;">LAPORAN STOCK BARANG (DETIL)</th></tr>';
         echo '<tr><th colspan="8" style="font-size: 11px; text-align: center; font-family: Arial; font-weight: normal; border: none;">Periode : ' . $tglAwalFormatted . ' s.d. ' . $tglAkhirFormatted . '</th></tr>';
         echo '<tr><td colspan="8" style="border: none;"></td></tr>';
-        echo '<tr style="background-color: #4f81bd; color: #ffffff; font-weight: bold; font-family: Arial; text-align: center;">';
-        echo '<th style="padding: 10px; width: 250px;">Nama Barang</th>';
-        echo '<th style="padding: 10px; width: 80px;">Satuan</th>';
-        echo '<th style="padding: 10px; width: 100px;">Saldo Awal</th>';
-        echo '<th style="padding: 10px; width: 100px;">Masuk</th>';
-        echo '<th style="padding: 10px; width: 100px;">Keluar</th>';
-        echo '<th style="padding: 10px; width: 100px;">Saldo Akhir</th>';
-        echo '<th style="padding: 10px; width: 130px;">Harga Beli Akhir</th>';
-        echo '<th style="padding: 10px; width: 160px;">Jumlah</th>';
+        echo '<tr style="color: #ffffff; font-weight: bold; font-family: Arial; text-align: center;">';
+        echo '<th style="padding: 10px; width: 250px; background-color: #4f81bd;">Nama Barang</th>';
+        echo '<th style="padding: 10px; width: 80px; background-color: #4f81bd;">Satuan</th>';
+        echo '<th style="padding: 10px; width: 100px; background-color: #4f81bd;">Saldo Awal</th>';
+        echo '<th style="padding: 10px; width: 100px; background-color: #4f81bd;">Masuk</th>';
+        echo '<th style="padding: 10px; width: 100px; background-color: #4f81bd;">Keluar</th>';
+        echo '<th style="padding: 10px; width: 100px; background-color: #4f81bd;">Saldo Akhir</th>';
+        echo '<th style="padding: 10px; width: 130px; background-color: #4f81bd;">Harga Beli Akhir</th>';
+        echo '<th style="padding: 10px; width: 160px; background-color: #4f81bd;">Jumlah</th>';
         echo '</tr>';
 
         foreach ($barangsGrouped as $categoryName => $group) {
-            echo '<tr style="background-color: #dce6f1; font-weight: bold; color: #1f4e79; font-family: Arial; font-size: 11px;">';
-            echo '<td colspan="8" style="text-align: left; padding: 6px;">▶ ' . strtoupper($categoryName) . '</td>';
+            echo '<tr style="font-weight: bold; color: #1f4e79; font-family: Arial; font-size: 11px;">';
+            echo '<td colspan="8" style="text-align: left; padding: 6px; background-color: #dce6f1;">▶ ' . strtoupper($categoryName) . '</td>';
             echo '</tr>';
 
             foreach ($group as $b) {

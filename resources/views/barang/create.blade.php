@@ -35,6 +35,7 @@
                             <option value="ikat">ikat</option>
                             <option value="bungkus">bungkus</option>
                             <option value="botol">botol</option>
+                            <option value="butir">butir</option>
                             <option value="dus">dus</option>
                         </select>
                     </div>
