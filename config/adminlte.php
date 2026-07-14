@@ -110,7 +110,7 @@ return [
     */
 
     'preloader' => [
-        'enabled' => true,
+        'enabled' => false,
         'mode' => 'fullscreen',
     ],
 
@@ -312,9 +312,14 @@ return [
         ],
         
         [
-            'text' => 'Transaksi',
-            'url' => 'transaksi',
-            'icon' => 'fas fa-fw fa-exchange-alt',
+            'text' => 'Barang Masuk',
+            'url' => 'barang-masuk',
+            'icon' => 'fas fa-fw fa-plus-circle',
+        ],
+        [
+            'text' => 'Barang Keluar',
+            'url' => 'barang-keluar',
+            'icon' => 'fas fa-fw fa-minus-circle',
         ],
         [
             'text' => 'Laporan Stok',

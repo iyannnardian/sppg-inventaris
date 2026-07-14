@@ -96,9 +96,21 @@
         <meta name="msapplication-TileImage" content="{{ asset('favicons/ms-icon-144x144.png') }}">
     @endif
 
+    {{-- HTMX for modern smooth SPA page transitions --}}
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuDtJxw3RC8awRaqqp_55MSzMxTJLoOUMCXSJRrupl9406MlegxhNYd" crossorigin="anonymous"></script>
+    <script>
+        // Trigger DOMContentLoaded when HTMX swaps content so page scripts execute correctly
+        document.addEventListener('htmx:afterSettle', function () {
+            setTimeout(function() {
+                var event = document.createEvent('Event');
+                event.initEvent('DOMContentLoaded', true, true);
+                document.dispatchEvent(event);
+            }, 10);
+        });
+    </script>
 </head>
 
-<body class="@yield('classes_body')" @yield('body_data')>
+<body class="@yield('classes_body')" hx-boost="true" @yield('body_data')>
 
     {{-- Body Content --}}
     @yield('body')
