@@ -10,8 +10,8 @@ class Kategori extends Model
     protected $primaryKey = 'id_kategori';
     protected $guarded = [];
 
-    public function barangs()
+    public function subKategoris()
     {
-        return $this->hasMany(Barang::class, 'id_kategori', 'id_kategori');
+        return $this->hasMany(SubKategori::class, 'id_kategori', 'id_kategori');
     }
 }

@@ -26,20 +26,23 @@ class SupplierController extends Controller
 
     public function store(Request $request)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk menambah supplier.');
+        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $request->validate([
             'nama_supplier' => 'required|string|max:255|unique:suppliers,nama_supplier',
+            'no_telp' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
         ], [
             'nama_supplier.required' => 'Nama supplier wajib diisi.',
             'nama_supplier.unique' => 'Nama supplier sudah terdaftar.',
+            'no_telp.max' => 'Nomor telepon maksimal 20 karakter.',
         ]);
 
         Supplier::create([
             'nama_supplier' => $request->nama_supplier,
+            'no_telp' => $request->no_telp,
             'alamat' => $request->alamat,
         ]);
 
@@ -48,22 +51,25 @@ class SupplierController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk mengubah supplier.');
+        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $supplier = Supplier::findOrFail($id);
 
         $request->validate([
             'nama_supplier' => 'required|string|max:255|unique:suppliers,nama_supplier,' . $id . ',id_supplier',
+            'no_telp' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
         ], [
             'nama_supplier.required' => 'Nama supplier wajib diisi.',
             'nama_supplier.unique' => 'Nama supplier sudah terdaftar.',
+            'no_telp.max' => 'Nomor telepon maksimal 20 karakter.',
         ]);
 
         $supplier->update([
             'nama_supplier' => $request->nama_supplier,
+            'no_telp' => $request->no_telp,
             'alamat' => $request->alamat,
         ]);
 
@@ -72,8 +78,8 @@ class SupplierController extends Controller
 
     public function destroy($id)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk menghapus supplier.');
+        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $supplier = Supplier::findOrFail($id);

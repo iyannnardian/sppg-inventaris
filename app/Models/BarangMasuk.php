@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class BarangMasuk extends Model
 {
-    protected $table = 'barang_masuks';
-    protected $primaryKey = 'id_masuk';
+    protected $table = 'pembelian_details';
+    protected $primaryKey = 'id_detail';
     protected $guarded = [];
 
     public function barang()
@@ -15,13 +15,8 @@ class BarangMasuk extends Model
         return $this->belongsTo(Barang::class, 'id_barang', 'id_barang');
     }
 
-    public function supplier()
+    public function pembelian()
     {
-        return $this->belongsTo(Supplier::class, 'id_supplier', 'id_supplier');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'id_user', 'id');
+        return $this->belongsTo(Pembelian::class, 'id_pembelian', 'id_pembelian');
     }
 }

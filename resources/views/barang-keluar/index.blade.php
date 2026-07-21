@@ -1,17 +1,17 @@
 @extends('adminlte::page')
 
-@section('title', 'Barang Keluar - StockFlow')
+@section('title', 'Pengeluaran Barang - StockFlow')
 
 @section('content_header')
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
         <div>
-            <h1 class="m-0 text-dark"><i class="fas fa-minus-circle text-danger mr-2"></i>Barang Keluar</h1>
-            <p class="text-muted mb-0">Kelola daftar transaksi barang keluar / pemakaian</p>
+            <h1 class="m-0 text-dark font-weight-bold" style="font-size: 26px;">Pengeluaran Barang</h1>
+            <p class="text-muted mb-0" style="font-size: 14px;">Transaksi pengeluaran / pemakaian bahan baku dapur</p>
         </div>
-        @if(Auth::user()->role !== 'kepala dapur')
-            <div>
-                <button class="btn btn-danger shadow-sm" data-toggle="modal" data-target="#modalTambahKeluar">
-                    <i class="fas fa-plus mr-1"></i> Barang Keluar
+        @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+            <div class="mt-md-0 mt-3">
+                <button class="btn btn-primary font-weight-bold px-3 py-2 shadow-sm" data-toggle="modal" data-target="#modalTambahPengeluaran" style="border-radius: 6px;">
+                    + Catat Pengeluaran
                 </button>
             </div>
         @endif
@@ -20,7 +20,7 @@
 
 @section('content')
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert">
+        <div class="alert alert-success alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert" style="border-radius: 6px;">
             <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -29,7 +29,7 @@
     @endif
 
     @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert" style="border-radius: 6px;">
             <i class="fas fa-exclamation-triangle mr-2"></i> {{ session('error') }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -38,9 +38,9 @@
     @endif
 
     @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert" style="border-radius: 6px;">
             <i class="fas fa-exclamation-triangle mr-2"></i> <strong>Gagal memproses data:</strong>
-            <ul class="mb-0 mt-1">
+            <ul class="mb-0 mt-1 pl-3">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -51,84 +51,93 @@
         </div>
     @endif
 
-    <!-- Form Filter -->
-    <div class="card card-outline card-secondary shadow-sm mb-4">
-        <div class="card-body">
-            <form action="{{ route('barang-keluar.index') }}" method="GET" class="row align-items-end">
-                <div class="col-md-4 form-group mb-md-0">
-                    <label for="tanggal_awal" class="small font-weight-bold">Mulai tanggal</label>
-                    <input type="date" class="form-control" id="tanggal_awal" name="tanggal_awal" value="{{ $tanggalAwal }}">
-                </div>
-                <div class="col-md-4 form-group mb-md-0">
-                    <label for="tanggal_akhir" class="small font-weight-bold">Hingga tanggal</label>
-                    <input type="date" class="form-control" id="tanggal_akhir" name="tanggal_akhir" value="{{ $tanggalAkhir }}">
-                </div>
-                <div class="col-md-4 d-flex mb-md-0">
-                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter mr-1"></i> Filter</button>
-                    <a href="{{ route('barang-keluar.index') }}" class="btn btn-default border w-100 ml-2 text-center">Reset</a>
-                </div>
+    <!-- Form Filter Tgl Pengeluaran -->
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 8px;">
+        <div class="card-body py-3">
+            <form action="{{ route('barang-keluar.index') }}" method="GET" class="form-inline flex-wrap align-items-center">
+                <span class="font-weight-bold text-secondary mr-2" style="font-size: 14px;">Filter Tgl Pengeluaran:</span>
+                
+                <input type="date" class="form-control bg-white mr-2 my-1" id="tanggal_awal" name="tanggal_awal" value="{{ $tanggalAwal }}" placeholder="dd/mm/yyyy" style="border-radius: 6px; font-size: 14px;">
+                
+                <span class="text-secondary mr-2 my-1">s.d.</span>
+                
+                <input type="date" class="form-control bg-white mr-2 my-1" id="tanggal_akhir" name="tanggal_akhir" value="{{ $tanggalAkhir }}" placeholder="dd/mm/yyyy" style="border-radius: 6px; font-size: 14px;">
+                
+                <button type="submit" class="btn btn-outline-secondary btn-sm font-weight-bold px-3 mr-2 my-1" style="border-radius: 6px;">Terapkan</button>
+                <a href="{{ route('barang-keluar.index') }}" class="btn btn-light border btn-sm text-secondary px-3 my-1" style="border-radius: 6px;">Reset</a>
             </form>
         </div>
     </div>
 
-    <!-- Tabel Riwayat Transaksi -->
-    <div class="card card-outline card-danger shadow-sm">
-        <div class="card-header">
-            <h3 class="card-title font-weight-bold">Riwayat transaksi</h3>
-        </div>
+    <!-- Tabel Daftar Transaksi Pengeluaran -->
+    <div class="card border-0 shadow-sm" style="border-radius: 8px; overflow: hidden;">
         <div class="card-body p-0">
             @if($transaksis->isEmpty())
                 <div class="text-center py-5 text-muted">
-                    <i class="fas fa-arrow-up fa-3x mb-3 text-danger" style="opacity: 0.5;"></i>
-                    <h5>Belum ada riwayat transaksi keluar</h5>
-                    <p>Silakan catat barang keluar menggunakan tombol di atas.</p>
+                    <p class="mb-0">Belum ada riwayat transaksi pengeluaran barang.</p>
                 </div>
             @else
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="thead-light">
+                        <thead style="background-color: #fafafa; border-bottom: 1px solid #f0f0f0;">
                             <tr>
-                                <th style="width: 5%">NO</th>
-                                <th style="width: 15%">Tanggal</th>
-                                <th style="width: 20%">Petugas</th>
-                                <th style="width: 25%">Nama Barang</th>
-                                <th style="width: 15%">Volume</th>
-                                <th style="width: 10%">Satuan</th>
-                                @if(Auth::user()->role !== 'kepala dapur')
-                                    <th style="width: 10%" class="text-right">Aksi</th>
-                                @endif
+                                <th style="width: 8%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="pl-4 py-3">NO</th>
+                                <th style="width: 17%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">TGL PENGELUARAN</th>
+                                <th style="width: 20%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">PETUGAS</th>
+                                <th style="width: 30%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">RINCIAN BARANG</th>
+                                <th style="width: 10%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3 text-center">TOTAL ITEM</th>
+                                <th style="width: 15%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="text-right pr-4 py-3">AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($transaksis as $index => $t)
                             <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ \Carbon\Carbon::parse($t->tanggal_keluar)->format('d M Y') }}</td>
-                                <td><i class="fas fa-user mr-1 text-xs text-secondary"></i> {{ $t->user->name ?? 'User' }}</td>
-                                <td class="font-weight-bold text-dark">{{ $t->barang->nama_barang ?? 'Barang Terhapus' }}</td>
-                                <td class="text-danger font-weight-bold">-{{ number_format($t->jumlah, 0, ',', '.') }}</td>
-                                <td class="text-muted">{{ $t->barang->satuan ?? '' }}</td>
-                                @if(Auth::user()->role !== 'kepala dapur')
-                                <td class="text-right">
-                                    <div class="d-flex justify-content-end gap-1">
-                                        <button class="btn btn-outline-warning btn-sm btn-edit-keluar" 
-                                                data-id="{{ $t->id_keluar }}"
-                                                data-barang="{{ $t->id_barang }}"
-                                                data-jumlah="{{ $t->jumlah }}"
-                                                data-tanggal="{{ \Carbon\Carbon::parse($t->tanggal_keluar)->format('Y-m-d') }}"
-                                                data-toggle="modal" 
-                                                data-target="#modalEditKeluar"
-                                                title="Edit Transaksi">
-                                            <i class="fas fa-pencil-alt"></i>
+                                <td class="pl-4">{{ $index + 1 }}</td>
+                                <td>
+                                    {{ \Carbon\Carbon::parse($t->tgl_pengeluaran)->format('d M Y') }}
+                                </td>
+                                <td>
+                                    <i class="fas fa-user-circle mr-1 text-secondary"></i> {{ $t->user->nama ?? $t->user->name ?? 'User' }}
+                                </td>
+                                <td>
+                                    @if($t->details->isNotEmpty())
+                                        <ul class="mb-0 pl-3">
+                                            @foreach($t->details->take(2) as $d)
+                                                <li>
+                                                    <strong>{{ $d->barang->nama_barang ?? 'Barang Terhapus' }}</strong> 
+                                                    <span class="badge badge-light border text-danger ml-1">-{{ number_format($d->qty, 0, ',', '.') }} {{ $d->barang->satuan->nama_satuan ?? '' }}</span>
+                                                </li>
+                                            @endforeach
+                                            @if($t->details->count() > 2)
+                                                <li class="text-muted small"><em>+{{ $t->details->count() - 2 }} barang lainnya...</em></li>
+                                            @endif
+                                        </ul>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td class="text-center font-weight-bold text-dark" style="font-size: 14px;">
+                                    {{ $t->details->count() }} Item
+                                </td>
+                                <td class="text-right pr-4">
+                                    <div class="d-flex justify-content-end align-items-center gap-1">
+                                        <!-- Tombol Detail -->
+                                        <button type="button" class="btn btn-info btn-sm font-weight-bold btn-detail-pengeluaran mr-1" data-id="{{ $t->id_pengeluaran }}" title="Lihat Detail">
+                                            <i class="fas fa-eye mr-1"></i> Detail
                                         </button>
-                                        <form action="{{ route('barang-keluar.destroy', $t->id_keluar) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus transaksi keluar ini? Penghapusan akan mengembalikan stok.');" class="d-inline ml-1">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Hapus Transaksi"><i class="fas fa-trash"></i></button>
-                                        </form>
+
+                                        @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+                                            <!-- Tombol Hapus -->
+                                            <form action="{{ route('barang-keluar.destroy', $t->id_pengeluaran) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus transaksi pengeluaran ini? Stok barang akan otomatis dikembalikan.');" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm font-weight-bold" title="Hapus Transaksi">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
-                                @endif
                             </tr>
                             @endforeach
                         </tbody>
@@ -138,207 +147,185 @@
         </div>
     </div>
 
-    @if(Auth::user()->role !== 'kepala dapur')
-        <!-- Modal Tambah -->
-        <div class="modal fade" id="modalTambahKeluar" tabindex="-1" role="dialog" aria-labelledby="modalTambahKeluarLabel" aria-hidden="true">
-            <div class="modal-dialog text-left" role="document">
-                <div class="modal-content border-0 shadow">
-                    <div class="modal-header bg-danger text-white border-0">
-                        <h5 class="modal-title" id="modalTambahKeluarLabel"><i class="fas fa-arrow-up mr-2 text-white"></i>Catat Transaksi Barang Keluar</h5>
-                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form action="{{ route('barang-keluar.store') }}" method="POST" id="formTambahKeluar">
-                        @csrf
-                        <div class="modal-body">
-                            <!-- Alert Peringatan Stok Kritis/Kurang -->
-                            <div class="alert alert-danger border-0 shadow-sm d-none" id="tambah-keluar-warning-alert">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>
-                                <span id="tambah-keluar-warning-msg">Jumlah pengeluaran melebihi stok yang tersedia saat ini!</span>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="id_barang_keluar">Pilih Barang <span class="text-danger">*</span></label>
-                                <select class="form-control" id="id_barang_keluar" name="id_barang" required>
-                                    <option value="" disabled selected>-- Pilih Barang --</option>
-                                    @foreach($barangs as $b)
-                                        <option value="{{ $b->id_barang }}" data-stok="{{ $b->stok }}" data-satuan="{{ $b->satuan }}">{{ $b->nama_barang }} (Tersedia: {{ $b->stok }} {{ $b->satuan }})</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="jumlah_keluar">Jumlah Keluar <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="jumlah_keluar" name="jumlah" placeholder="Masukkan jumlah qty" required min="1">
-                                <small class="text-muted d-block mt-1" id="info-satuan-keluar"></small>
-                            </div>
-                            <div class="form-group">
-                                <label for="tanggal_keluar">Tanggal Keluar <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="tanggal_keluar" name="tanggal_keluar" required value="{{ date('Y-m-d') }}">
-                            </div>
-                        </div>
-                        <div class="modal-footer border-0">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-danger" id="btnSubmitTambahKeluar"><i class="fas fa-save mr-1"></i> Simpan Transaksi</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Edit -->
-        <div class="modal fade" id="modalEditKeluar" tabindex="-1" role="dialog" aria-labelledby="modalEditKeluarLabel" aria-hidden="true">
-            <div class="modal-dialog text-left" role="document">
-                <div class="modal-content border-0 shadow">
-                    <div class="modal-header bg-warning text-white border-0">
-                        <h5 class="modal-title" id="modalEditKeluarLabel"><i class="fas fa-pencil-alt mr-2 text-white"></i>Edit Transaksi Barang Keluar</h5>
-                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form id="formEditKeluar" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <div class="modal-body">
-                            <!-- Alert Peringatan Stok Kritis/Kurang -->
-                            <div class="alert alert-danger border-0 shadow-sm d-none" id="edit-keluar-warning-alert">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>
-                                <span id="edit-keluar-warning-msg">Jumlah pengeluaran melebihi stok yang tersedia saat ini!</span>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="edit_id_barang_keluar">Pilih Barang <span class="text-danger">*</span></label>
-                                <select class="form-control" id="edit_id_barang_keluar" name="id_barang" required>
-                                    @foreach($barangs as $b)
-                                        <option value="{{ $b->id_barang }}" data-stok="{{ $b->stok }}" data-satuan="{{ $b->satuan }}">{{ $b->nama_barang }} (Stok Saat Ini: {{ $b->stok }} {{ $b->satuan }})</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit_jumlah_keluar">Jumlah Keluar <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="edit_jumlah_keluar" name="jumlah" required min="1">
-                                <small class="text-muted d-block mt-1" id="edit-info-satuan-keluar"></small>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit_tanggal_keluar">Tanggal Keluar <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="edit_tanggal_keluar" name="tanggal_keluar" required>
-                            </div>
-                        </div>
-                        <div class="modal-footer border-0">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-warning text-white" id="btnSubmitEditKeluar"><i class="fas fa-save mr-1"></i> Perbarui Transaksi</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+        @include('barang-keluar.create')
     @endif
+
+    @include('barang-keluar.show')
 @endsection
 
 @section('js')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if(Auth::user()->role !== 'kepala dapur')
-            // ==================== 1. TAMBAH KELUAR ====================
-            const idBarangKeluar = document.getElementById('id_barang_keluar');
-            const jumlahKeluar = document.getElementById('jumlah_keluar');
-            const btnSubmitTambahKeluar = document.getElementById('btnSubmitTambahKeluar');
-            const warningAlertKeluar = document.getElementById('tambah-keluar-warning-alert');
-            const warningMsgKeluar = document.getElementById('tambah-keluar-warning-msg');
-            const infoSatuanKeluar = document.getElementById('info-satuan-keluar');
+            const barangOptionsHtml = `
+                <option value="" disabled selected>— Pilih barang —</option>
+                @foreach($barangs as $b)
+                    <option value="{{ $b->id_barang }}" data-stok="{{ $b->stok }}" data-satuan="{{ $b->satuan->nama_satuan ?? '' }}">
+                        {{ $b->nama_barang }} (Stok: {{ number_format($b->stok, 0, ',', '.') }} {{ $b->satuan->nama_satuan ?? '' }})
+                    </option>
+                @endforeach
+            `;
 
-            function validasiStokTambahKeluar() {
-                const selected = idBarangKeluar.options[idBarangKeluar.selectedIndex];
-                if (!selected || selected.value === "") {
-                    infoSatuanKeluar.textContent = '';
-                    warningAlertKeluar.classList.add('d-none');
-                    btnSubmitTambahKeluar.disabled = false;
-                    return;
-                }
+            let itemIndex = 1;
 
-                const stok = parseInt(selected.getAttribute('data-stok')) || 0;
-                const satuan = selected.getAttribute('data-satuan') || '';
-                const qty = parseInt(jumlahKeluar.value) || 0;
+            const btnTambahBaris = document.getElementById('btnTambahBarisItem');
+            const containerBaris = document.getElementById('containerBarisItem');
+            const btnSubmitPengeluaran = document.getElementById('btnSubmitPengeluaran');
 
-                infoSatuanKeluar.textContent = `Satuan barang: ${satuan}. Stok tersedia: ${stok} ${satuan}.`;
+            if (btnTambahBaris && containerBaris) {
+                btnTambahBaris.addEventListener('click', function () {
+                    const tr = document.createElement('tr');
+                    tr.className = 'baris-item';
+                    tr.innerHTML = `
+                        <td>
+                            <select class="form-control select-barang" name="items[${itemIndex}][id_barang]" required style="border-radius: 8px;">
+                                ${barangOptionsHtml}
+                            </select>
+                            <small class="text-muted info-satuan-item d-block mt-1"></small>
+                        </td>
+                        <td>
+                            <input type="number" step="any" min="0.01" class="form-control input-qty" name="items[${itemIndex}][qty]" placeholder="0" required style="border-radius: 8px;" inputmode="decimal">
+                            <small class="text-danger warning-stok-exceeded d-none font-weight-bold mt-1">Stok tidak mencukupi!</small>
+                        </td>
+                        <td class="text-center align-middle">
+                            <button type="button" class="btn btn-link text-muted p-0 btn-hapus-baris" title="Hapus Baris" style="font-size: 16px;">&times;</button>
+                        </td>
+                    `;
+                    containerBaris.appendChild(tr);
+                    itemIndex++;
+                    bindRowEvents(tr);
+                });
 
-                if (qty > stok) {
-                    warningMsgKeluar.textContent = `Stok tidak mencukupi! Pengeluaran (${qty} ${satuan}) melebihi stok yang tersedia (${stok} ${satuan}).`;
-                    warningAlertKeluar.classList.remove('d-none');
-                    btnSubmitTambahKeluar.disabled = true;
-                } else {
-                    warningAlertKeluar.classList.add('d-none');
-                    btnSubmitTambahKeluar.disabled = false;
+                const initialRow = containerBaris.querySelector('.baris-item');
+                if (initialRow) {
+                    bindRowEvents(initialRow);
                 }
             }
 
-            idBarangKeluar.addEventListener('change', validasiStokTambahKeluar);
-            jumlahKeluar.addEventListener('input', validasiStokTambahKeluar);
+            function bindRowEvents(row) {
+                const selectBarang = row.querySelector('.select-barang');
+                const inputQty = row.querySelector('.input-qty');
+                const infoSatuan = row.querySelector('.info-satuan-item');
+                const warningStok = row.querySelector('.warning-stok-exceeded');
+                const btnHapus = row.querySelector('.btn-hapus-baris');
 
-            // ==================== 2. EDIT KELUAR ====================
-            const editKeluarButtons = document.querySelectorAll('.btn-edit-keluar');
-            const formEditKeluar = document.getElementById('formEditKeluar');
-            const editIdBarangKeluar = document.getElementById('edit_id_barang_keluar');
-            const editJumlahKeluar = document.getElementById('edit_jumlah_keluar');
-            const editTanggalKeluar = document.getElementById('edit_tanggal_keluar');
-            const editInfoSatuanKeluar = document.getElementById('edit-info-satuan-keluar');
-            const editKeluarWarningAlert = document.getElementById('edit-keluar-warning-alert');
-            const editKeluarWarningMsg = document.getElementById('edit-keluar-warning-msg');
-            const btnSubmitEditKeluar = document.getElementById('btnSubmitEditKeluar');
+                // DILARANG MASUKKAN HURUF / Mencegah pengetikan selain angka & desimal
+                inputQty.addEventListener('keydown', function(e) {
+                    if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+                        (e.keyCode === 65 && e.ctrlKey === true) ||
+                        (e.keyCode >= 35 && e.keyCode <= 40)) {
+                        return;
+                    }
+                    if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+                        e.preventDefault();
+                    }
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
 
-            let origBarangKeluar = '';
-            let origJumlahKeluar = 0;
+                inputQty.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9.]/g, '');
+                    validasiStokBaris();
+                });
 
-            editKeluarButtons.forEach(btn => {
+                selectBarang.addEventListener('change', function () {
+                    validasiStokBaris();
+                });
+
+                btnHapus.addEventListener('click', function () {
+                    const totalRows = containerBaris.querySelectorAll('.baris-item').length;
+                    if (totalRows > 1) {
+                        row.remove();
+                        checkAllStokValid();
+                    } else {
+                        alert('Minimal 1 barang harus ada dalam pengeluaran!');
+                    }
+                });
+
+                function validasiStokBaris() {
+                    const opt = selectBarang.options[selectBarang.selectedIndex];
+                    if (opt && opt.value !== '') {
+                        const stok = parseFloat(opt.getAttribute('data-stok')) || 0;
+                        const satuan = opt.getAttribute('data-satuan') || '';
+                        const qty = parseFloat(inputQty.value) || 0;
+
+                        infoSatuan.textContent = `Stok tersedia: ${stok} ${satuan}`;
+
+                        if (qty > stok) {
+                            warningStok.textContent = `Stok tidak cukup! (Stok: ${stok} ${satuan})`;
+                            warningStok.classList.remove('d-none');
+                        } else {
+                            warningStok.classList.add('d-none');
+                        }
+                    }
+                    checkAllStokValid();
+                }
+            }
+
+            function checkAllStokValid() {
+                let isValid = true;
+                const rows = containerBaris.querySelectorAll('.baris-item');
+                rows.forEach(row => {
+                    const select = row.querySelector('.select-barang');
+                    const input = row.querySelector('.input-qty');
+                    const warning = row.querySelector('.warning-stok-exceeded');
+
+                    const opt = select.options[select.selectedIndex];
+                    if (opt && opt.value !== '') {
+                        const stok = parseFloat(opt.getAttribute('data-stok')) || 0;
+                        const qty = parseFloat(input.value) || 0;
+                        if (qty > stok || qty <= 0) {
+                            isValid = false;
+                        }
+                    }
+                });
+
+                if (btnSubmitPengeluaran) {
+                    btnSubmitPengeluaran.disabled = !isValid;
+                }
+            }
+
+            // Handler Modal Detail Pengeluaran
+            const detailButtons = document.querySelectorAll('.btn-detail-pengeluaran');
+            detailButtons.forEach(btn => {
                 btn.addEventListener('click', function () {
                     const id = this.getAttribute('data-id');
-                    origBarangKeluar = this.getAttribute('data-barang');
-                    origJumlahKeluar = parseInt(this.getAttribute('data-jumlah')) || 0;
-                    const tanggal = this.getAttribute('data-tanggal');
+                    fetch(`/barang-keluar/${id}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            document.getElementById('detail_tgl_pengeluaran').textContent = data.tgl_pengeluaran;
+                            document.getElementById('detail_nama_petugas').textContent = (data.user ? (data.user.nama || data.user.name) : '-');
 
-                    formEditKeluar.setAttribute('action', `/barang-keluar/${id}`);
-                    editIdBarangKeluar.value = origBarangKeluar;
-                    editJumlahKeluar.value = origJumlahKeluar;
-                    editTanggalKeluar.value = tanggal;
+                            const containerItems = document.getElementById('detail_container_items');
+                            containerItems.innerHTML = '';
 
-                    validasiStokEditKeluar();
+                            if (data.details && data.details.length > 0) {
+                                data.details.forEach((item, idx) => {
+                                    const namaBarang = item.barang ? item.barang.nama_barang : 'Barang Terhapus';
+                                    const satuan = (item.barang && item.barang.satuan) ? item.barang.satuan.nama_satuan : '';
+                                    const qty = parseFloat(item.qty) || 0;
+
+                                    const tr = document.createElement('tr');
+                                    tr.innerHTML = `
+                                        <td>${idx + 1}</td>
+                                        <td class="font-weight-bold text-dark">${namaBarang}</td>
+                                        <td class="text-right font-weight-bold text-danger">-${qty.toLocaleString('id-ID')} ${satuan}</td>
+                                    `;
+                                    containerItems.appendChild(tr);
+                                });
+                            } else {
+                                containerItems.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Tidak ada detail item</td></tr>';
+                            }
+
+                            $('#modalDetailPengeluaran').modal('show');
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('Gagal memuat detail pengeluaran.');
+                        });
                 });
             });
-
-            function validasiStokEditKeluar() {
-                const selected = editIdBarangKeluar.options[editIdBarangKeluar.selectedIndex];
-                if (!selected || selected.value === "") {
-                    editInfoSatuanKeluar.textContent = '';
-                    editKeluarWarningAlert.classList.add('d-none');
-                    btnSubmitEditKeluar.disabled = false;
-                    return;
-                }
-
-                const currentStok = parseInt(selected.getAttribute('data-stok')) || 0;
-                const satuan = selected.getAttribute('data-satuan') || '';
-                const qty = parseInt(editJumlahKeluar.value) || 0;
-
-                let availableStok = currentStok;
-                if (selected.value === origBarangKeluar) {
-                    availableStok = currentStok + origJumlahKeluar;
-                    editInfoSatuanKeluar.textContent = `Satuan barang: ${satuan}. Stok tersedia (termasuk qty saat ini): ${availableStok} ${satuan}.`;
-                } else {
-                    editInfoSatuanKeluar.textContent = `Satuan barang: ${satuan}. Stok tersedia: ${availableStok} ${satuan}.`;
-                }
-
-                if (qty > availableStok) {
-                    editKeluarWarningMsg.textContent = `Stok tidak mencukupi! Pengeluaran (${qty} ${satuan}) melebihi stok yang tersedia (${availableStok} ${satuan}).`;
-                    editKeluarWarningAlert.classList.remove('d-none');
-                    btnSubmitEditKeluar.disabled = true;
-                } else {
-                    editKeluarWarningAlert.classList.add('d-none');
-                    btnSubmitEditKeluar.disabled = false;
-                }
-            }
-
-            editIdBarangKeluar.addEventListener('change', validasiStokEditKeluar);
-            editJumlahKeluar.addEventListener('input', validasiStokEditKeluar);
-            @endif
         });
     </script>
 @endsection

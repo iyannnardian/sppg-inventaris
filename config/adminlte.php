@@ -127,7 +127,7 @@ return [
     */
 
     'usermenu_enabled' => true,
-    'usermenu_header' => false,
+    'usermenu_header' => true,
     'usermenu_header_class' => 'bg-primary',
     'usermenu_image' => false,
     'usermenu_desc' => false,
@@ -250,13 +250,13 @@ return [
     */
 
     'use_route_url' => false,
-    'dashboard_url' => 'home',
+    'dashboard_url' => 'dashboard',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
     'password_reset_url' => 'password/reset',
     'password_email_url' => 'password/email',
-    'profile_url' => false,
+    'profile_url' => 'profile',
     'disable_darkmode_routes' => false,
 
     /*
@@ -294,49 +294,60 @@ return [
     'menu' => [
         // Sidebar items:
         
+        ['header' => 'RINGKASAN'],
         [
             'text' => 'Dashboard',
             'route' => 'dashboard',
             'icon' => 'fas fa-fw fa-tachometer-alt',
         ],
-        
+
+        ['header' => 'MASTER DATA'],
         [
             'text' => 'Kategori Barang',
             'url' => 'kategori',
             'icon' => 'fas fa-fw fa-tags',
+            'can' => 'not-kepala-dapur',
         ],
         [
-            'text' => 'Daftar Barang',
-            'url' => 'barang',
-            'icon' => 'fas fa-fw fa-box',
+            'text' => 'Satuan',
+            'url' => 'satuan',
+            'icon' => 'fas fa-fw fa-balance-scale',
+            'can' => 'not-kepala-dapur',
         ],
-        
-        [
-            'text' => 'Barang Masuk',
-            'url' => 'barang-masuk',
-            'icon' => 'fas fa-fw fa-plus-circle',
-        ],
-        [
-            'text' => 'Barang Keluar',
-            'url' => 'barang-keluar',
-            'icon' => 'fas fa-fw fa-minus-circle',
-        ],
-        [
-            'text' => 'Laporan Stok',
-            'url' => 'laporan',
-            'icon' => 'fas fa-fw fa-file-invoice',
-        ],
-        
         [
             'text' => 'Supplier',
             'url' => 'supplier',
             'icon' => 'fas fa-fw fa-truck',
         ],
         [
-            'text' => 'Kelola User',
+            'text' => 'Barang',
+            'url' => 'barang',
+            'icon' => 'fas fa-fw fa-box',
+        ],
+        [
+            'text' => 'User',
             'url' => 'users',
             'icon' => 'fas fa-fw fa-users',
             'can' => 'admin-only',
+        ],
+
+        ['header' => 'TRANSAKSI'],
+        [
+            'text' => 'Pembelian',
+            'url' => 'barang-masuk',
+            'icon' => 'fas fa-fw fa-cart-plus',
+        ],
+        [
+            'text' => 'Pengeluaran',
+            'url' => 'barang-keluar',
+            'icon' => 'fas fa-fw fa-dolly-flatbed',
+        ],
+
+        ['header' => 'LAPORAN'],
+        [
+            'text' => 'Laporan Stok',
+            'url' => 'laporan',
+            'icon' => 'fas fa-fw fa-file-invoice',
         ],
     ],
 

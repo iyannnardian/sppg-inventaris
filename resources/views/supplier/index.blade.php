@@ -8,7 +8,7 @@
             <h1 class="m-0 text-dark"><i class="fas fa-truck mr-2"></i>Kelola Supplier</h1>
             <p class="text-muted mb-0">Kelola daftar penyedia/supplier bahan baku dapur</p>
         </div>
-        @if(Auth::user()->role !== 'kepala dapur')
+        @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
             <button class="btn btn-primary" data-toggle="modal" data-target="#modalTambah"><i class="fas fa-plus-circle mr-1"></i> Tambah Supplier</button>
         @endif
     </div>
@@ -47,7 +47,7 @@
         </div>
     @endif
 
-    <div class="card card-outline card-primary shadow-sm">
+    <div class="card border-0 shadow-sm">
         <div class="card-header">
             <h3 class="card-title font-weight-bold">Data Supplier</h3>
         </div>
@@ -57,7 +57,7 @@
                     <i class="fas fa-truck fa-3x mb-3 text-secondary"></i>
                     <h5>Belum ada data supplier</h5>
                     <p>Silakan daftarkan supplier untuk mencatat transaksi barang masuk.</p>
-                    @if(Auth::user()->role !== 'kepala dapur')
+                    @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
                         <button class="btn btn-primary mt-2" data-toggle="modal" data-target="#modalTambah"><i class="fas fa-plus-circle mr-1"></i> Tambah Supplier Pertama</button>
                     @endif
                 </div>
@@ -67,9 +67,10 @@
                         <thead class="thead-light">
                             <tr>
                                 <th style="width: 5%">No</th>
-                                <th style="width: 35%">Nama Supplier</th>
-                                <th style="width: 45%">Alamat</th>
-                                @if(Auth::user()->role !== 'kepala dapur')
+                                <th style="width: 25%">Nama Supplier</th>
+                                <th style="width: 20%">No. Telepon</th>
+                                <th style="width: 35%">Alamat</th>
+                                @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
                                     <th style="width: 15%" class="text-right">Aksi</th>
                                 @endif
                             </tr>
@@ -79,13 +80,15 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td class="font-weight-bold text-dark">{{ $s->nama_supplier }}</td>
+                                <td>{{ $s->no_telp ?? '-' }}</td>
                                 <td>{{ $s->alamat ?? '-' }}</td>
-                                @if(Auth::user()->role !== 'kepala dapur')
+                                @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
                                 <td class="text-right">
                                     <div class="d-flex justify-content-end gap-2">
                                         <button class="btn btn-warning btn-sm text-white btn-edit" 
                                                 data-id="{{ $s->id_supplier }}"
                                                 data-nama="{{ $s->nama_supplier }}"
+                                                data-telp="{{ $s->no_telp }}"
                                                 data-alamat="{{ $s->alamat }}"
                                                 data-toggle="modal" 
                                                 data-target="#modalEdit"
@@ -109,7 +112,7 @@
         </div>
     </div>
 
-    @if(Auth::user()->role !== 'kepala dapur')
+    @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
         @include('supplier.create')
         @include('supplier.edit')
     @endif
@@ -118,20 +121,23 @@
 @section('js')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if(Auth::user()->role !== 'kepala dapur')
+            @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
             const editButtons = document.querySelectorAll('.btn-edit');
             const formEdit = document.getElementById('formEditSupplier');
             const inputNama = document.getElementById('edit_nama_supplier');
+            const inputTelp = document.getElementById('edit_no_telp');
             const inputAlamat = document.getElementById('edit_alamat');
 
             editButtons.forEach(button => {
                 button.addEventListener('click', function () {
                     const id = this.getAttribute('data-id');
                     const nama = this.getAttribute('data-nama');
+                    const telp = this.getAttribute('data-telp');
                     const alamat = this.getAttribute('data-alamat');
 
                     formEdit.setAttribute('action', `/supplier/${id}`);
                     inputNama.value = nama;
+                    inputTelp.value = telp ?? '';
                     inputAlamat.value = alamat ?? '';
                 });
             });

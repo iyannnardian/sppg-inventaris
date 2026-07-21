@@ -27,7 +27,7 @@
                             <option value="" disabled selected>-- Pilih Peran Akses --</option>
                             <option value="admin">Admin (Akses Penuh)</option>
                             <option value="ahli gizi">Ahli Gizi (Akses Dapur & Transaksi)</option>
-                            <option value="kepala dapur">Kepala Dapur (Hanya Lihat Laporan/Stok)</option>
+                            <option value="kepala dapur">Kepala Dapur (Akses Monitoring & Laporan)</option>
                         </select>
                     </div>
 

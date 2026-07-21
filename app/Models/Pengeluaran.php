@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Pengeluaran extends Model
+{
+    protected $table = 'pengeluarans';
+    protected $primaryKey = 'id_pengeluaran';
+    protected $guarded = [];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user', 'id');
+    }
+
+    public function details()
+    {
+        return $this->hasMany(PengeluaranDetail::class, 'id_pengeluaran', 'id_pengeluaran');
+    }
+}

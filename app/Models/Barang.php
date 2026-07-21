@@ -9,27 +9,50 @@ class Barang extends Model
     protected $table = 'barangs';
     protected $primaryKey = 'id_barang';
     protected $guarded = [];
-    protected $appends = ['stok'];
 
-    public function kategori()
+    public function subKategori()
     {
-        return $this->belongsTo(Kategori::class, 'id_kategori', 'id_kategori');
+        return $this->belongsTo(SubKategori::class, 'id_subkategori', 'id_subkategori');
+    }
+
+    public function satuan()
+    {
+        return $this->belongsTo(Satuan::class, 'id_satuan', 'id_satuan');
+    }
+
+    public function pembelianDetails()
+    {
+        return $this->hasMany(PembelianDetail::class, 'id_barang', 'id_barang');
     }
 
     public function barangMasuks()
     {
-        return $this->hasMany(BarangMasuk::class, 'id_barang', 'id_barang');
+        return $this->hasMany(PembelianDetail::class, 'id_barang', 'id_barang')
+            ->whereHas('pembelian', function($q) {
+                $q->where('status', 'Diterima');
+            });
+    }
+
+    public function pengeluaranDetails()
+    {
+        return $this->hasMany(PengeluaranDetail::class, 'id_barang', 'id_barang');
     }
 
     public function barangKeluars()
     {
-        return $this->hasMany(BarangKeluar::class, 'id_barang', 'id_barang');
+        return $this->hasMany(PengeluaranDetail::class, 'id_barang', 'id_barang');
     }
 
     public function getStokAttribute()
     {
-        $masuk = $this->barangMasuks()->sum('jumlah');
-        $keluar = $this->barangKeluars()->sum('jumlah');
-        return $this->stok_awal + $masuk - $keluar;
+        $masuk = $this->pembelianDetails()
+            ->whereHas('pembelian', function($q) {
+                $q->where('status', 'Diterima');
+            })
+            ->sum('qty');
+
+        $keluar = $this->pengeluaranDetails()->sum('qty');
+
+        return $masuk - $keluar;
     }
 }

@@ -12,8 +12,22 @@
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
+                        <label for="kode_kategori">Kode Kategori</label>
+                        <input type="text" class="form-control" id="kode_kategori" name="kode_kategori" placeholder="Opsional (misal: KH atau KH.01)" autocomplete="off">
+                    </div>
+                    <div class="form-group">
                         <label for="nama_kategori">Nama Kategori <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nama_kategori" name="nama_kategori" placeholder="Contoh: Bahan Pokok, Sayuran, Daging" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="parent_id">Induk Kategori</label>
+                        <select class="form-control" id="parent_id" name="parent_id">
+                            <option value="">-- Jadikan Kategori Utama --</option>
+                            @foreach($kategoriUtama as $ku)
+                                <option value="{{ $ku->id_kategori }}">{{ $ku->nama_kategori }}</option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">Kosongkan jika ini adalah Kategori Utama.</small>
                     </div>
                 </div>
                 <div class="modal-footer border-0">

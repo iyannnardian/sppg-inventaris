@@ -45,7 +45,7 @@
         </div>
     @endif
 
-    <div class="card card-outline card-primary shadow-sm">
+    <div class="card border-0 shadow-sm">
         <div class="card-header">
             <h3 class="card-title font-weight-bold">Akun Pengguna</h3>
         </div>
@@ -68,25 +68,28 @@
                             <td>{{ $index + 1 }}</td>
                             <td class="font-weight-bold text-dark">
                                 {{ $user->name }}
-                                @if(Auth::id() == $user->id)
+                                @if(Auth::user()->id_user == $user->id_user)
                                     <span class="badge badge-info ml-1">Anda</span>
                                 @endif
                             </td>
                             <td>{{ $user->email }}</td>
                             <td>
-                                @if($user->role == 'admin')
+                                @php $role = strtolower($user->role ?? '') @endphp
+                                @if($role == 'admin')
                                     <span class="badge badge-danger text-uppercase"><i class="fas fa-shield-alt mr-1"></i> Admin</span>
-                                @elseif($user->role == 'ahli gizi')
+                                @elseif($role == 'ahli gizi')
                                     <span class="badge badge-success text-uppercase"><i class="fas fa-heartbeat mr-1"></i> Ahli Gizi</span>
-                                @else
+                                @elseif($role == 'kepala dapur')
                                     <span class="badge badge-primary text-uppercase"><i class="fas fa-utensils mr-1"></i> Kepala Dapur</span>
+                                @else
+                                    <span class="badge badge-secondary text-uppercase">{{ $user->role }}</span>
                                 @endif
                             </td>
                             <td>{{ $user->created_at->format('d M Y') }}</td>
                             <td class="text-right">
                                 <div class="d-flex justify-content-end gap-2">
                                     <button class="btn btn-warning btn-sm text-white btn-edit" 
-                                            data-id="{{ $user->id }}"
+                                            data-id="{{ $user->id_user }}"
                                             data-name="{{ $user->name }}"
                                             data-email="{{ $user->email }}"
                                             data-role="{{ $user->role }}"
@@ -96,8 +99,8 @@
                                         <i class="fas fa-pencil-alt text-white"></i> Edit
                                     </button>
                                     
-                                    @if(Auth::id() != $user->id)
-                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun ini dari sistem?');" class="d-inline ml-1">
+                                    @if(Auth::user()->id_user != $user->id_user)
+                                        <form action="{{ route('users.destroy', $user->id_user) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun ini dari sistem?');" class="d-inline ml-1">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm" title="Hapus Pengguna"><i class="fas fa-trash"></i> Hapus</button>

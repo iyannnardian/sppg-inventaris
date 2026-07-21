@@ -20,7 +20,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Illuminate\Support\Facades\Gate::define('admin-only', function ($user) {
-            return $user->role === 'admin';
+            return strtolower($user->role ?? '') === 'admin';
+        });
+
+        \Illuminate\Support\Facades\Gate::define('not-kepala-dapur', function ($user) {
+            return !in_array(strtolower($user->role ?? ''), ['kepala dapur', 'kepala sppg']);
         });
     }
 }

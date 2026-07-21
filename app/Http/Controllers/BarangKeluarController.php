@@ -4,124 +4,157 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Barang;
-use App\Models\BarangKeluar;
+use App\Models\Pengeluaran;
+use App\Models\PengeluaranDetail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BarangKeluarController extends Controller
 {
+    private function checkAccess()
+    {
+        if (Auth::check() && in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk mencatat transaksi pengeluaran.');
+        }
+    }
+
     public function index(Request $request)
     {
-        $barangs = Barang::all();
-        
+        $barangs = Barang::with(['satuan', 'subKategori.kategori'])->get();
+
         $tanggalAwal = $request->input('tanggal_awal');
         $tanggalAkhir = $request->input('tanggal_akhir');
 
-        $query = BarangKeluar::with(['barang', 'user']);
+        $query = Pengeluaran::with(['user', 'details.barang.satuan']);
 
         if ($tanggalAwal) {
-            $query->where('tanggal_keluar', '>=', $tanggalAwal);
+            $query->where('tgl_pengeluaran', '>=', $tanggalAwal);
         }
         if ($tanggalAkhir) {
-            $query->where('tanggal_keluar', '<=', $tanggalAkhir);
+            $query->where('tgl_pengeluaran', '<=', $tanggalAkhir);
         }
 
-        $transaksis = $query->orderBy('tanggal_keluar', 'desc')->orderBy('created_at', 'desc')->get();
+        $transaksis = $query->orderBy('tgl_pengeluaran', 'desc')
+                            ->orderBy('id_pengeluaran', 'desc')
+                            ->get();
 
-        return view('barang-keluar.index', compact('barangs', 'transaksis', 'tanggalAwal', 'tanggalAkhir'));
+        return view('barang-keluar.index', compact(
+            'barangs',
+            'transaksis',
+            'tanggalAwal',
+            'tanggalAkhir'
+        ));
+    }
+
+    public function show($id)
+    {
+        $pengeluaran = Pengeluaran::with(['user', 'details.barang.satuan'])->findOrFail($id);
+        return response()->json($pengeluaran);
     }
 
     public function store(Request $request)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk mencatat transaksi keluar.');
-        }
+        $this->checkAccess();
 
         $request->validate([
-            'id_barang' => 'required|exists:barangs,id_barang',
-            'jumlah' => 'required|integer|min:1',
-            'tanggal_keluar' => 'required|date',
+            'tgl_pengeluaran' => 'required|date',
+            'items' => 'required|array|min:1',
+            'items.*.id_barang' => 'required|exists:barangs,id_barang',
+            'items.*.qty' => 'required|numeric|min:0.01',
         ], [
-            'id_barang.required' => 'Barang wajib dipilih.',
-            'id_barang.exists' => 'Barang tidak valid.',
-            'jumlah.required' => 'Jumlah barang wajib diisi.',
-            'jumlah.integer' => 'Jumlah barang harus berupa angka.',
-            'jumlah.min' => 'Jumlah barang minimal 1.',
-            'tanggal_keluar.required' => 'Tanggal keluar wajib diisi.',
-            'tanggal_keluar.date' => 'Format tanggal tidak valid.',
+            'tgl_pengeluaran.required' => 'Tanggal pengeluaran wajib diisi.',
+            'items.required' => 'Minimal 1 barang harus dimasukkan dalam rincian pengeluaran.',
+            'items.min' => 'Minimal 1 barang harus dimasukkan dalam rincian pengeluaran.',
+            'items.*.id_barang.required' => 'Barang wajib dipilih.',
+            'items.*.qty.required' => 'Jumlah barang (qty) wajib diisi.',
+            'items.*.qty.min' => 'Jumlah barang minimal 0.01.',
         ]);
 
-        $barang = Barang::findOrFail($request->id_barang);
-
-        if ($barang->stok < $request->jumlah) {
-            return redirect()->route('barang-keluar.index')
-                ->with('error', "Stok tidak mencukupi! Stok saat ini untuk {$barang->nama_barang} adalah {$barang->stok} {$barang->satuan}.")
-                ->withInput();
+        // Validate stock availability for all items before saving
+        foreach ($request->items as $item) {
+            $barang = Barang::find($item['id_barang']);
+            if ($barang) {
+                if ($barang->stok < $item['qty']) {
+                    return redirect()->route('barang-keluar.index')
+                        ->with('error', "Gagal mencatat pengeluaran! Stok untuk barang '{$barang->nama_barang}' tidak mencukupi (stok saat ini: {$barang->stok}, diminta: {$item['qty']}).")
+                        ->withInput();
+                }
+            }
         }
 
-        BarangKeluar::create([
-            'id_barang' => $request->id_barang,
-            'jumlah' => $request->jumlah,
-            'tanggal_keluar' => $request->tanggal_keluar,
-            'id_user' => Auth::id(),
-        ]);
+        DB::transaction(function () use ($request) {
+            $pengeluaran = Pengeluaran::create([
+                'tgl_pengeluaran' => $request->tgl_pengeluaran,
+                'id_user' => Auth::id(),
+            ]);
 
-        return redirect()->route('barang-keluar.index')->with('success', 'Transaksi barang keluar berhasil dicatat!');
+            foreach ($request->items as $item) {
+                PengeluaranDetail::create([
+                    'id_pengeluaran' => $pengeluaran->id_pengeluaran,
+                    'id_barang' => $item['id_barang'],
+                    'qty' => $item['qty'],
+                ]);
+            }
+        });
+
+        return redirect()->route('barang-keluar.index')->with('success', 'Transaksi pengeluaran barang berhasil dicatat dan stok barang otomatis berkurang!');
     }
 
     public function update(Request $request, $id)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk mengubah transaksi keluar.');
-        }
+        $this->checkAccess();
 
-        $keluar = BarangKeluar::findOrFail($id);
-        $oldBarang = $keluar->barang;
-        $oldJumlah = $keluar->jumlah;
-        $oldIdBarang = $keluar->id_barang;
+        $pengeluaran = Pengeluaran::with('details.barang')->findOrFail($id);
 
         $request->validate([
-            'id_barang' => 'required|exists:barangs,id_barang',
-            'jumlah' => 'required|integer|min:1',
-            'tanggal_keluar' => 'required|date',
-        ], [
-            'id_barang.required' => 'Barang wajib dipilih.',
-            'id_barang.exists' => 'Barang tidak valid.',
-            'jumlah.required' => 'Jumlah barang wajib diisi.',
-            'jumlah.integer' => 'Jumlah barang harus berupa angka.',
-            'jumlah.min' => 'Jumlah barang minimal 1.',
-            'tanggal_keluar.required' => 'Tanggal keluar wajib diisi.',
-            'tanggal_keluar.date' => 'Format tanggal tidak valid.',
+            'tgl_pengeluaran' => 'required|date',
+            'items' => 'required|array|min:1',
+            'items.*.id_barang' => 'required|exists:barangs,id_barang',
+            'items.*.qty' => 'required|numeric|min:0.01',
         ]);
 
-        if ($request->id_barang != $oldIdBarang) {
-            $barangBaru = Barang::findOrFail($request->id_barang);
-            if ($barangBaru->stok < $request->jumlah) {
-                return redirect()->route('barang-keluar.index')->with('error', "Stok tidak mencukupi! Stok saat ini untuk {$barangBaru->nama_barang} adalah {$barangBaru->stok} {$barangBaru->satuan}.");
-            }
-        } else {
-            $selisih = $request->jumlah - $oldJumlah;
-            if ($selisih > 0 && ($oldBarang->stok - $selisih) < 0) {
-                return redirect()->route('barang-keluar.index')->with('error', "Stok tidak mencukupi! Stok saat ini untuk {$oldBarang->nama_barang} adalah {$oldBarang->stok} {$oldBarang->satuan}.");
+        // Validate stock availability considering existing detail amounts
+        foreach ($request->items as $item) {
+            $barang = Barang::find($item['id_barang']);
+            if ($barang) {
+                $existingQtyInThisTrans = $pengeluaran->details->where('id_barang', $item['id_barang'])->sum('qty');
+                $availableStokWithReturn = $barang->stok + $existingQtyInThisTrans;
+
+                if ($availableStokWithReturn < $item['qty']) {
+                    return redirect()->route('barang-keluar.index')
+                        ->with('error', "Gagal memperbarui pengeluaran! Stok barang '{$barang->nama_barang}' tidak mencukupi (stok tersedia: {$availableStokWithReturn}, diminta: {$item['qty']}).");
+                }
             }
         }
 
-        $keluar->update([
-            'id_barang' => $request->id_barang,
-            'jumlah' => $request->jumlah,
-            'tanggal_keluar' => $request->tanggal_keluar,
-        ]);
+        DB::transaction(function () use ($pengeluaran, $request) {
+            $pengeluaran->details()->delete();
 
-        return redirect()->route('barang-keluar.index')->with('success', 'Transaksi barang keluar berhasil diubah!');
+            $pengeluaran->update([
+                'tgl_pengeluaran' => $request->tgl_pengeluaran,
+                'id_user' => Auth::id(),
+            ]);
+
+            foreach ($request->items as $item) {
+                PengeluaranDetail::create([
+                    'id_pengeluaran' => $pengeluaran->id_pengeluaran,
+                    'id_barang' => $item['id_barang'],
+                    'qty' => $item['qty'],
+                ]);
+            }
+        });
+
+        return redirect()->route('barang-keluar.index')->with('success', 'Transaksi pengeluaran barang berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk menghapus transaksi keluar.');
-        }
+        $this->checkAccess();
 
-        $keluar = BarangKeluar::findOrFail($id);
-        $keluar->delete();
-        return redirect()->route('barang-keluar.index')->with('success', 'Transaksi barang keluar berhasil dihapus!');
+        $pengeluaran = Pengeluaran::findOrFail($id);
+        $pengeluaran->details()->delete();
+        $pengeluaran->delete();
+
+        return redirect()->route('barang-keluar.index')->with('success', 'Transaksi pengeluaran barang berhasil dihapus dan stok barang telah dikembalikan.');
     }
 }

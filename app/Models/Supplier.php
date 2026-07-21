@@ -10,8 +10,8 @@ class Supplier extends Model
     protected $primaryKey = 'id_supplier';
     protected $guarded = [];
 
-    public function barangMasuks()
+    public function pembelians()
     {
-        return $this->hasMany(BarangMasuk::class, 'id_supplier', 'id_supplier');
+        return $this->hasMany(Pembelian::class, 'id_supplier', 'id_supplier');
     }
 }

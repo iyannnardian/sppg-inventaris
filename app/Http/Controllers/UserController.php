@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     private function authorizeAdmin()
     {
-        if (Auth::user()->role !== 'admin') {
+        if (!Auth::check() || strtolower(Auth::user()->role) !== 'admin') {
             abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk mengakses halaman manajemen pengguna.');
         }
     }
@@ -39,24 +39,22 @@ class UserController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'role' => 'required|in:admin,ahli gizi,kepala dapur',
+            'email' => 'required|string|max:255|unique:users,username',
+            'role' => 'required|string',
             'password' => 'required|string|min:6',
         ], [
             'name.required' => 'Nama wajib diisi.',
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
-            'email.unique' => 'Email ini sudah digunakan oleh akun lain.',
+            'email.required' => 'Email / Username wajib diisi.',
+            'email.unique' => 'Email / Username ini sudah digunakan oleh akun lain.',
             'role.required' => 'Peran wajib dipilih.',
-            'role.in' => 'Peran tidak valid.',
             'password.required' => 'Kata sandi wajib diisi.',
             'password.min' => 'Kata sandi minimal terdiri dari 6 karakter.',
         ]);
 
         User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
+            'nama' => $request->name,
+            'username' => $request->email,
+            'role' => ucwords($request->role),
             'password' => Hash::make($request->password),
         ]);
 
@@ -71,23 +69,21 @@ class UserController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'role' => 'required|in:admin,ahli gizi,kepala dapur',
+            'email' => 'required|string|max:255|unique:users,username,' . $id . ',id_user',
+            'role' => 'required|string',
             'password' => 'nullable|string|min:6',
         ], [
             'name.required' => 'Nama wajib diisi.',
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
-            'email.unique' => 'Email ini sudah digunakan oleh akun lain.',
+            'email.required' => 'Email / Username wajib diisi.',
+            'email.unique' => 'Email / Username ini sudah digunakan oleh akun lain.',
             'role.required' => 'Peran wajib dipilih.',
-            'role.in' => 'Peran tidak valid.',
             'password.min' => 'Kata sandi minimal terdiri dari 6 karakter.',
         ]);
 
         $userData = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
+            'nama' => $request->name,
+            'username' => $request->email,
+            'role' => ucwords($request->role),
         ];
 
         if ($request->filled('password')) {
@@ -103,7 +99,7 @@ class UserController extends Controller
     {
         $this->authorizeAdmin();
 
-        if (Auth::id() == $id) {
+        if (Auth::user()->id_user == $id) {
             return redirect()->route('users.index')->with('error', 'Aksi ditolak! Anda tidak diperbolehkan menghapus akun Anda sendiri.');
         }
 

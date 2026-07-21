@@ -1,17 +1,17 @@
 @extends('adminlte::page')
 
-@section('title', 'Barang Masuk - StockFlow')
+@section('title', 'Pembelian & Barang Masuk - StockFlow')
 
 @section('content_header')
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
         <div>
-            <h1 class="m-0 text-dark"><i class="fas fa-plus-circle text-success mr-2"></i>Barang Masuk</h1>
-            <p class="text-muted mb-0">Kelola daftar transaksi barang masuk / supply</p>
+            <h1 class="m-0 text-dark font-weight-bold" style="font-size: 26px;">Pembelian</h1>
+            <p class="text-muted mb-0" style="font-size: 14px;">Transaksi pembelian dari supplier — status Draft / Diterima / Batal</p>
         </div>
-        @if(Auth::user()->role !== 'kepala dapur')
-            <div>
-                <button class="btn btn-success shadow-sm" data-toggle="modal" data-target="#modalTambahMasuk">
-                    <i class="fas fa-plus mr-1"></i> Barang Masuk
+        @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+            <div class="mt-md-0 mt-3">
+                <button class="btn btn-primary font-weight-bold px-3 py-2 shadow-sm" data-toggle="modal" data-target="#modalTambahPembelian" style="border-radius: 6px;">
+                    + Catat Pembelian
                 </button>
             </div>
         @endif
@@ -20,7 +20,7 @@
 
 @section('content')
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert">
+        <div class="alert alert-success alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert" style="border-radius: 6px;">
             <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -29,7 +29,7 @@
     @endif
 
     @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert" style="border-radius: 6px;">
             <i class="fas fa-exclamation-triangle mr-2"></i> {{ session('error') }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -38,9 +38,9 @@
     @endif
 
     @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show border-0 mb-3 shadow-sm" role="alert" style="border-radius: 6px;">
             <i class="fas fa-exclamation-triangle mr-2"></i> <strong>Gagal memproses data:</strong>
-            <ul class="mb-0 mt-1">
+            <ul class="mb-0 mt-1 pl-3">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -51,88 +51,113 @@
         </div>
     @endif
 
-    <!-- Form Filter -->
-    <div class="card card-outline card-secondary shadow-sm mb-4">
-        <div class="card-body">
-            <form action="{{ route('barang-masuk.index') }}" method="GET" class="row align-items-end">
-                <div class="col-md-4 form-group mb-md-0">
-                    <label for="tanggal_awal" class="small font-weight-bold">Mulai tanggal</label>
-                    <input type="date" class="form-control" id="tanggal_awal" name="tanggal_awal" value="{{ $tanggalAwal }}">
-                </div>
-                <div class="col-md-4 form-group mb-md-0">
-                    <label for="tanggal_akhir" class="small font-weight-bold">Hingga tanggal</label>
-                    <input type="date" class="form-control" id="tanggal_akhir" name="tanggal_akhir" value="{{ $tanggalAkhir }}">
-                </div>
-                <div class="col-md-4 d-flex mb-md-0">
-                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter mr-1"></i> Filter</button>
-                    <a href="{{ route('barang-masuk.index') }}" class="btn btn-default border w-100 ml-2 text-center">Reset</a>
-                </div>
+    <!-- Form Filter Tgl Faktur -->
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 8px;">
+        <div class="card-body py-3">
+            <form action="{{ route('barang-masuk.index') }}" method="GET" class="form-inline flex-wrap align-items-center">
+                <span class="font-weight-bold text-secondary mr-2" style="font-size: 14px;">Filter Tgl Faktur:</span>
+                
+                <input type="date" class="form-control bg-white mr-2 my-1" id="tanggal_awal" name="tanggal_awal" value="{{ $tanggalAwal }}" placeholder="dd/mm/yyyy" style="border-radius: 6px; font-size: 14px;">
+                
+                <span class="text-secondary mr-2 my-1">s.d.</span>
+                
+                <input type="date" class="form-control bg-white mr-2 my-1" id="tanggal_akhir" name="tanggal_akhir" value="{{ $tanggalAkhir }}" placeholder="dd/mm/yyyy" style="border-radius: 6px; font-size: 14px;">
+                
+                <button type="submit" class="btn btn-outline-secondary btn-sm font-weight-bold px-3 mr-2 my-1" style="border-radius: 6px;">Terapkan</button>
+                <a href="{{ route('barang-masuk.index') }}" class="btn btn-light border btn-sm text-secondary px-3 my-1" style="border-radius: 6px;">Reset</a>
             </form>
         </div>
     </div>
 
-    <!-- Tabel Riwayat Transaksi -->
-    <div class="card card-outline card-success shadow-sm">
-        <div class="card-header">
-            <h3 class="card-title font-weight-bold">Riwayat transaksi</h3>
-        </div>
+    <!-- Tabel Daftar Transaksi Pembelian -->
+    <div class="card border-0 shadow-sm" style="border-radius: 8px; overflow: hidden;">
         <div class="card-body p-0">
             @if($transaksis->isEmpty())
                 <div class="text-center py-5 text-muted">
-                    <i class="fas fa-arrow-down fa-3x mb-3 text-success" style="opacity: 0.5;"></i>
-                    <h5>Belum ada riwayat transaksi masuk</h5>
-                    <p>Silakan catat barang masuk menggunakan tombol di atas.</p>
+                    <p class="mb-0">Belum ada riwayat transaksi pembelian.</p>
                 </div>
             @else
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="thead-light">
+                        <thead style="background-color: #fafafa; border-bottom: 1px solid #f0f0f0;">
                             <tr>
-                                <th style="width: 5%">NO</th>
-                                <th style="width: 15%">Tanggal</th>
-                                <th style="width: 20%">Supplier</th>
-                                <th style="width: 20%">Nama Barang</th>
-                                <th style="width: 10%">Volume</th>
-                                <th style="width: 10%">Satuan</th>
-                                <th style="width: 10%">Harga Beli</th>
-                                @if(Auth::user()->role !== 'kepala dapur')
-                                    <th style="width: 10%" class="text-right">Aksi</th>
-                                @endif
+                                <th style="width: 15%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="pl-4 py-3">NO. FAKTUR</th>
+                                <th style="width: 12%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">TGL FAKTUR</th>
+                                <th style="width: 12%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">TGL TERIMA</th>
+                                <th style="width: 20%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">SUPPLIER</th>
+                                <th style="width: 15%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">TOTAL</th>
+                                <th style="width: 10%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3 text-center">STATUS</th>
+                                <th style="width: 16%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="text-right pr-4 py-3">AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($transaksis as $index => $t)
+                            @foreach($transaksis as $t)
                             <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ \Carbon\Carbon::parse($t->tanggal_masuk)->format('d M Y') }}</td>
-                                <td class="text-secondary"><i class="fas fa-truck mr-1 text-xs"></i> {{ $t->supplier->nama_supplier ?? 'Supplier Terhapus' }}</td>
-                                <td class="font-weight-bold text-dark">{{ $t->barang->nama_barang ?? 'Barang Terhapus' }}</td>
-                                <td class="text-success font-weight-bold">+{{ number_format($t->jumlah, 0, ',', '.') }}</td>
-                                <td class="text-muted">{{ $t->barang->satuan ?? '' }}</td>
-                                <td>Rp {{ number_format($t->harga, 0, ',', '.') }}</td>
-                                @if(Auth::user()->role !== 'kepala dapur')
-                                <td class="text-right">
-                                    <div class="d-flex justify-content-end gap-1">
-                                        <button class="btn btn-outline-warning btn-sm btn-edit-masuk" 
-                                                data-id="{{ $t->id_masuk }}"
-                                                data-barang="{{ $t->id_barang }}"
-                                                data-supplier="{{ $t->id_supplier }}"
-                                                data-jumlah="{{ $t->jumlah }}"
-                                                data-harga="{{ $t->harga }}"
-                                                data-tanggal="{{ \Carbon\Carbon::parse($t->tanggal_masuk)->format('Y-m-d') }}"
-                                                data-toggle="modal" 
-                                                data-target="#modalEditMasuk"
-                                                title="Edit Transaksi">
-                                            <i class="fas fa-pencil-alt"></i>
+                                <td class="pl-4">{{ $t->no_faktur }}</td>
+                                <td>
+                                    {{ \Carbon\Carbon::parse($t->tgl_faktur)->format('d M Y') }}
+                                </td>
+                                <td>
+                                    {{ \Carbon\Carbon::parse($t->tgl_terima)->format('d M Y') }}
+                                </td>
+                                <td>
+                                    {{ $t->supplier->nama_supplier ?? '-' }}
+                                </td>
+                                <td>
+                                    Rp {{ number_format($t->total_belanja, 0, ',', '.') }}
+                                </td>
+                                <td class="text-center">
+                                    @if($t->status === 'Diterima')
+                                        <span class="badge badge-success px-2 py-1 font-weight-bold">Diterima</span>
+                                    @elseif($t->status === 'Draft')
+                                        <span class="badge badge-warning text-dark px-2 py-1 font-weight-bold" style="background-color: #fce8cd; color: #a86200;">Draft</span>
+                                    @else
+                                        <span class="badge badge-danger px-2 py-1 font-weight-bold">Batal</span>
+                                    @endif
+                                </td>
+                                <td class="text-right pr-4">
+                                    <div class="d-flex justify-content-end align-items-center gap-1">
+                                        <!-- Tombol Detail -->
+                                        <button type="button" class="btn btn-info btn-sm font-weight-bold btn-detail-pembelian mr-1" data-id="{{ $t->id_pembelian }}" title="Lihat Detail">
+                                            <i class="fas fa-eye mr-1"></i> Detail
                                         </button>
-                                        <form action="{{ route('barang-masuk.destroy', $t->id_masuk) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus transaksi masuk ini? Penghapusan akan mengembalikan stok.');" class="d-inline ml-1">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Hapus Transaksi"><i class="fas fa-trash"></i></button>
-                                        </form>
+
+                                        @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+                                            <!-- Tombol Terima (jika belum Diterima) -->
+                                            @if($t->status !== 'Diterima')
+                                                <form action="{{ route('barang-masuk.update-status', $t->id_pembelian) }}" method="POST" class="d-inline mr-1">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="status" value="Diterima">
+                                                    <button type="submit" class="btn btn-success btn-sm font-weight-bold" onclick="return confirm('Proses faktur ini menjadi DITERIMA? Barang akan langsung masuk ke stok persediaan.');" title="Terima Barang">
+                                                        <i class="fas fa-check mr-1"></i> Terima
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                            <!-- Tombol Batalkan (jika belum Batal) -->
+                                            @if($t->status !== 'Batal')
+                                                <form action="{{ route('barang-masuk.update-status', $t->id_pembelian) }}" method="POST" class="d-inline mr-1">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="status" value="Batal">
+                                                    <button type="submit" class="btn btn-warning btn-sm text-white font-weight-bold" onclick="return confirm('Batalkan transaksi faktur ini?');" title="Batalkan Faktur">
+                                                        <i class="fas fa-times mr-1"></i> Batal
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                            <!-- Tombol Hapus -->
+                                            <form action="{{ route('barang-masuk.destroy', $t->id_pembelian) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus transaksi faktur ini?');" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm font-weight-bold" title="Hapus Faktur">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
-                                @endif
                             </tr>
                             @endforeach
                         </tbody>
@@ -142,232 +167,209 @@
         </div>
     </div>
 
-    @if(Auth::user()->role !== 'kepala dapur')
-        <!-- Modal Tambah -->
-        <div class="modal fade" id="modalTambahMasuk" tabindex="-1" role="dialog" aria-labelledby="modalTambahMasukLabel" aria-hidden="true">
-            <div class="modal-dialog text-left" role="document">
-                <div class="modal-content border-0 shadow">
-                    <div class="modal-header bg-success text-white border-0">
-                        <h5 class="modal-title" id="modalTambahMasukLabel"><i class="fas fa-arrow-down mr-2"></i>Catat Transaksi Barang Masuk</h5>
-                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form action="{{ route('barang-masuk.store') }}" method="POST">
-                        @csrf
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="id_barang_masuk">Pilih Barang <span class="text-danger">*</span></label>
-                                <select class="form-control" id="id_barang_masuk" name="id_barang" required>
-                                    <option value="" disabled selected>-- Pilih Barang --</option>
-                                    @foreach($barangs as $b)
-                                        <option value="{{ $b->id_barang }}" data-stok="{{ $b->stok }}" data-satuan="{{ $b->satuan }}">{{ $b->nama_barang }} (Tersedia: {{ $b->stok }} {{ $b->satuan }})</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="id_supplier_masuk">Pilih Supplier <span class="text-danger">*</span></label>
-                                <select class="form-control" id="id_supplier_masuk" name="id_supplier" required>
-                                    <option value="" disabled selected>-- Pilih Supplier --</option>
-                                    @foreach($suppliers as $s)
-                                        <option value="{{ $s->id_supplier }}">{{ $s->nama_supplier }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="jumlah_masuk">Jumlah Masuk <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="jumlah_masuk" name="jumlah" placeholder="Masukkan jumlah qty" required min="1">
-                                    <small class="text-muted d-block mt-1" id="info-satuan-masuk"></small>
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label for="harga_masuk">Harga Satuan (Rp) <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="harga_masuk" name="harga" placeholder="Contoh: 15000" required min="0">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="tanggal_masuk">Tanggal Masuk <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="tanggal_masuk" name="tanggal_masuk" required value="{{ date('Y-m-d') }}">
-                            </div>
-                        </div>
-                        <div class="modal-footer border-0">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-success"><i class="fas fa-save mr-1"></i> Simpan Transaksi</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Edit -->
-        <div class="modal fade" id="modalEditMasuk" tabindex="-1" role="dialog" aria-labelledby="modalEditMasukLabel" aria-hidden="true">
-            <div class="modal-dialog text-left" role="document">
-                <div class="modal-content border-0 shadow">
-                    <div class="modal-header bg-warning text-white border-0">
-                        <h5 class="modal-title" id="modalEditMasukLabel"><i class="fas fa-pencil-alt mr-2 text-white"></i>Edit Transaksi Barang Masuk</h5>
-                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form id="formEditMasuk" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <div class="modal-body">
-                            <!-- Alert Peringatan edit masuk -->
-                            <div class="alert alert-danger border-0 shadow-sm d-none" id="edit-masuk-warning-alert">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>
-                                <span id="edit-masuk-warning-msg">Pengurangan barang masuk ini akan membuat stok menjadi negatif!</span>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="edit_id_barang_masuk">Pilih Barang <span class="text-danger">*</span></label>
-                                <select class="form-control" id="edit_id_barang_masuk" name="id_barang" required>
-                                    @foreach($barangs as $b)
-                                        <option value="{{ $b->id_barang }}" data-stok="{{ $b->stok }}" data-satuan="{{ $b->satuan }}">{{ $b->nama_barang }} (Stok Saat Ini: {{ $b->stok }} {{ $b->satuan }})</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit_id_supplier_masuk">Pilih Supplier <span class="text-danger">*</span></label>
-                                <select class="form-control" id="edit_id_supplier_masuk" name="id_supplier" required>
-                                    @foreach($suppliers as $s)
-                                        <option value="{{ $s->id_supplier }}">{{ $s->nama_supplier }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="edit_jumlah_masuk">Jumlah Masuk <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="edit_jumlah_masuk" name="jumlah" required min="1">
-                                    <small class="text-muted d-block mt-1" id="edit-info-satuan-masuk"></small>
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label for="edit_harga_masuk">Harga Satuan (Rp) <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="edit_harga_masuk" name="harga" required min="0">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit_tanggal_masuk">Tanggal Masuk <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="edit_tanggal_masuk" name="tanggal_masuk" required>
-                            </div>
-                        </div>
-                        <div class="modal-footer border-0">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-warning text-white" id="btnSubmitEditMasuk"><i class="fas fa-save mr-1"></i> Perbarui Transaksi</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+        @include('barang-masuk.create')
     @endif
+
+    @include('barang-masuk.show')
 @endsection
 
 @section('js')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if(Auth::user()->role !== 'kepala dapur')
-            // ==================== 1. TAMBAH MASUK ====================
-            const idBarangMasuk = document.getElementById('id_barang_masuk');
-            const infoSatuanMasuk = document.getElementById('info-satuan-masuk');
+            // Dropdown HTML template untuk barang
+            const barangOptionsHtml = `
+                <option value="" disabled selected>— Pilih barang —</option>
+                @foreach($barangs as $b)
+                    <option value="{{ $b->id_barang }}" data-harga="{{ $b->harga_terakhir }}" data-satuan="{{ $b->satuan->nama_satuan ?? '' }}">
+                        {{ $b->nama_barang }}
+                    </option>
+                @endforeach
+            `;
 
-            idBarangMasuk.addEventListener('change', function () {
-                const selected = this.options[this.selectedIndex];
-                if (selected && selected.value !== "") {
-                    const satuan = selected.getAttribute('data-satuan');
-                    infoSatuanMasuk.textContent = `Satuan barang: ${satuan}`;
-                } else {
-                    infoSatuanMasuk.textContent = '';
-                }
-            });
+            let itemIndex = 1;
 
-            // ==================== 2. EDIT MASUK ====================
-            const editMasukButtons = document.querySelectorAll('.btn-edit-masuk');
-            const formEditMasuk = document.getElementById('formEditMasuk');
-            const editIdBarangMasuk = document.getElementById('edit_id_barang_masuk');
-            const editIdSupplierMasuk = document.getElementById('edit_id_supplier_masuk');
-            const editJumlahMasuk = document.getElementById('edit_jumlah_masuk');
-            const editHargaMasuk = document.getElementById('edit_harga_masuk');
-            const editTanggalMasuk = document.getElementById('edit_tanggal_masuk');
-            const editInfoSatuanMasuk = document.getElementById('edit-info-satuan-masuk');
-            const editMasukWarningAlert = document.getElementById('edit-masuk-warning-alert');
-            const editMasukWarningMsg = document.getElementById('edit-masuk-warning-msg');
-            const btnSubmitEditMasuk = document.getElementById('btnSubmitEditMasuk');
+            const btnTambahBaris = document.getElementById('btnTambahBarisItem');
+            const containerBaris = document.getElementById('containerBarisItem');
 
-            let origBarangMasuk = '';
-            let origJumlahMasuk = 0;
-
-            editMasukButtons.forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const id = this.getAttribute('data-id');
-                    origBarangMasuk = this.getAttribute('data-barang');
-                    origJumlahMasuk = parseInt(this.getAttribute('data-jumlah')) || 0;
-                    const supplier = this.getAttribute('data-supplier');
-                    const harga = this.getAttribute('data-harga');
-                    const tanggal = this.getAttribute('data-tanggal');
-
-                    formEditMasuk.setAttribute('action', `/barang-masuk/${id}`);
-                    editIdBarangMasuk.value = origBarangMasuk;
-                    editIdSupplierMasuk.value = supplier;
-                    editJumlahMasuk.value = origJumlahMasuk;
-                    editHargaMasuk.value = harga;
-                    editTanggalMasuk.value = tanggal;
-
-                    validasiStokEditMasuk();
+            if (btnTambahBaris && containerBaris) {
+                btnTambahBaris.addEventListener('click', function () {
+                    const tr = document.createElement('tr');
+                    tr.className = 'baris-item';
+                    tr.innerHTML = `
+                        <td>
+                            <select class="form-control select-barang" name="items[${itemIndex}][id_barang]" required style="border-radius: 8px;">
+                                ${barangOptionsHtml}
+                            </select>
+                            <small class="text-muted info-satuan-item d-block mt-1"></small>
+                        </td>
+                        <td>
+                            <input type="number" step="any" min="1" class="form-control input-qty" name="items[${itemIndex}][qty]" placeholder="0" required style="border-radius: 8px;" inputmode="decimal">
+                        </td>
+                        <td>
+                            <input type="number" step="1" min="0" class="form-control input-harga" name="items[${itemIndex}][harga]" placeholder="0" required style="border-radius: 8px;" inputmode="numeric">
+                        </td>
+                        <td class="text-right align-middle">
+                            <span class="font-weight-bold text-dark input-subtotal-text">Rp 0</span>
+                        </td>
+                        <td class="text-center align-middle">
+                            <button type="button" class="btn btn-link text-muted p-0 btn-hapus-baris" title="Hapus Baris" style="font-size: 16px;">&times;</button>
+                        </td>
+                    `;
+                    containerBaris.appendChild(tr);
+                    itemIndex++;
+                    bindRowEvents(tr);
                 });
-            });
 
-            function validasiStokEditMasuk() {
-                const selected = editIdBarangMasuk.options[editIdBarangMasuk.selectedIndex];
-                if (!selected || selected.value === "") {
-                    editInfoSatuanMasuk.textContent = '';
-                    editMasukWarningAlert.classList.add('d-none');
-                    btnSubmitEditMasuk.disabled = false;
-                    return;
-                }
-
-                const currentStok = parseInt(selected.getAttribute('data-stok')) || 0;
-                const satuan = selected.getAttribute('data-satuan') || '';
-                const qty = parseInt(editJumlahMasuk.value) || 0;
-
-                editInfoSatuanMasuk.textContent = `Satuan barang: ${satuan}. Stok saat ini: ${currentStok} ${satuan}.`;
-
-                if (selected.value === origBarangMasuk) {
-                    const minQty = origJumlahMasuk - currentStok;
-                    if (qty < minQty) {
-                        editMasukWarningMsg.textContent = `Gagal! Pengurangan jumlah barang masuk terlalu banyak. Stok akhir akan bernilai negatif jika jumlah kurang dari ${minQty} ${satuan}.`;
-                        editMasukWarningAlert.classList.remove('d-none');
-                        btnSubmitEditMasuk.disabled = true;
-                    } else {
-                        editMasukWarningAlert.classList.add('d-none');
-                        btnSubmitEditMasuk.disabled = false;
-                    }
-                } else {
-                    let origOption = null;
-                    for (let i = 0; i < editIdBarangMasuk.options.length; i++) {
-                        if (editIdBarangMasuk.options[i].value === origBarangMasuk) {
-                            origOption = editIdBarangMasuk.options[i];
-                            break;
-                        }
-                    }
-
-                    if (origOption) {
-                        const origStok = parseInt(origOption.getAttribute('data-stok')) || 0;
-                        if (origStok < origJumlahMasuk) {
-                            editMasukWarningMsg.textContent = `Gagal! Stok barang asal tidak mencukupi untuk dikurangi (${origStok} < ${origJumlahMasuk} ${satuan}). Hapus atau ubah transaksi lain terlebih dahulu.`;
-                            editMasukWarningAlert.classList.remove('d-none');
-                            btnSubmitEditMasuk.disabled = true;
-                            return;
-                        }
-                    }
-
-                    editMasukWarningAlert.classList.add('d-none');
-                    btnSubmitEditMasuk.disabled = false;
+                // Bind baris awal
+                const initialRow = containerBaris.querySelector('.baris-item');
+                if (initialRow) {
+                    bindRowEvents(initialRow);
                 }
             }
 
-            editIdBarangMasuk.addEventListener('change', validasiStokEditMasuk);
-            editJumlahMasuk.addEventListener('input', validasiStokEditMasuk);
-            @endif
+            function bindRowEvents(row) {
+                const selectBarang = row.querySelector('.select-barang');
+                const inputQty = row.querySelector('.input-qty');
+                const inputHarga = row.querySelector('.input-harga');
+                const inputSubtotalText = row.querySelector('.input-subtotal-text');
+                const btnHapus = row.querySelector('.btn-hapus-baris');
+                const infoSatuan = row.querySelector('.info-satuan-item');
+
+                // DILARANG MASUKKAN HURUF / Mencegah pengetikan selain angka & desimal
+                [inputQty, inputHarga].forEach(input => {
+                    input.addEventListener('keydown', function(e) {
+                        // Izinkan Backspace, Delete, Tab, Escape, Enter, Decimal (.), Arrow keys
+                        if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+                            (e.keyCode === 65 && e.ctrlKey === true) ||
+                            (e.keyCode >= 35 && e.keyCode <= 40)) {
+                            return;
+                        }
+                        // Cegah e, E, +, -
+                        if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+                            e.preventDefault();
+                        }
+                        // Pastikan karakter adalah angka
+                        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                            e.preventDefault();
+                        }
+                    });
+
+                    input.addEventListener('input', function() {
+                        // Replaces non-numeric characters immediately
+                        if (input.classList.contains('input-harga')) {
+                            this.value = this.value.replace(/[^0-9]/g, '');
+                        } else {
+                            this.value = this.value.replace(/[^0-9.]/g, '');
+                        }
+                        hitungSubtotal();
+                    });
+                });
+
+                selectBarang.addEventListener('change', function () {
+                    const opt = this.options[this.selectedIndex];
+                    if (opt && opt.value !== '') {
+                        const harga = opt.getAttribute('data-harga') || 0;
+                        const satuan = opt.getAttribute('data-satuan') || '';
+                        if (!inputHarga.value || inputHarga.value == 0) {
+                            inputHarga.value = harga;
+                        }
+                        infoSatuan.textContent = satuan ? `Satuan: ${satuan}` : '';
+                    }
+                    hitungSubtotal();
+                });
+
+                btnHapus.addEventListener('click', function () {
+                    const totalRows = containerBaris.querySelectorAll('.baris-item').length;
+                    if (totalRows > 1) {
+                        row.remove();
+                        hitungGrandTotal();
+                    } else {
+                        alert('Minimal 1 barang harus ada dalam transaksi pembelian!');
+                    }
+                });
+
+                function hitungSubtotal() {
+                    const qty = parseFloat(inputQty.value) || 0;
+                    const harga = parseFloat(inputHarga.value) || 0;
+                    const subtotal = qty * harga;
+                    if (inputSubtotalText) {
+                        inputSubtotalText.textContent = 'Rp ' + subtotal.toLocaleString('id-ID');
+                    }
+                    hitungGrandTotal();
+                }
+            }
+
+            function hitungGrandTotal() {
+                let grandTotal = 0;
+                const rows = containerBaris.querySelectorAll('.baris-item');
+                rows.forEach(row => {
+                    const qty = parseFloat(row.querySelector('.input-qty').value) || 0;
+                    const harga = parseFloat(row.querySelector('.input-harga').value) || 0;
+                    grandTotal += (qty * harga);
+                });
+                const grandTotalElem = document.getElementById('grandTotalBelanja');
+                if (grandTotalElem) {
+                    grandTotalElem.textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
+                }
+            }
+
+            // Handler Modal Detail Pembelian
+            const detailButtons = document.querySelectorAll('.btn-detail-pembelian');
+            detailButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    fetch(`/barang-masuk/${id}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            document.getElementById('detail_no_faktur').textContent = data.no_faktur;
+                            document.getElementById('detail_supplier').textContent = data.supplier ? data.supplier.nama_supplier : '-';
+                            document.getElementById('detail_tgl_faktur').textContent = data.tgl_faktur;
+                            document.getElementById('detail_tgl_terima').textContent = data.tgl_terima;
+                            document.getElementById('detail_total_belanja').textContent = 'Rp ' + (parseFloat(data.total_belanja) || 0).toLocaleString('id-ID');
+
+                            let statusBadge = '';
+                            if (data.status === 'Diterima') {
+                                statusBadge = '<span class="badge badge-success px-2 py-1">Diterima</span>';
+                            } else if (data.status === 'Draft') {
+                                statusBadge = '<span class="badge badge-warning text-dark px-2 py-1">Draft</span>';
+                            } else {
+                                statusBadge = '<span class="badge badge-danger px-2 py-1">Batal</span>';
+                            }
+                            document.getElementById('detail_status').innerHTML = statusBadge;
+
+                            const containerItems = document.getElementById('detail_container_items');
+                            containerItems.innerHTML = '';
+
+                            if (data.details && data.details.length > 0) {
+                                data.details.forEach((item, idx) => {
+                                    const namaBarang = item.barang ? item.barang.nama_barang : 'Barang Terhapus';
+                                    const qty = parseFloat(item.qty) || 0;
+                                    const harga = parseFloat(item.harga) || 0;
+                                    const subtotal = parseFloat(item.subtotal) || (qty * harga);
+
+                                    const tr = document.createElement('tr');
+                                    tr.innerHTML = `
+                                        <td>${idx + 1}</td>
+                                        <td class="font-weight-bold text-dark">${namaBarang}</td>
+                                        <td class="text-center font-weight-bold">${qty.toLocaleString('id-ID')}</td>
+                                        <td class="text-right">Rp ${harga.toLocaleString('id-ID')}</td>
+                                        <td class="text-right font-weight-bold">Rp ${subtotal.toLocaleString('id-ID')}</td>
+                                    `;
+                                    containerItems.appendChild(tr);
+                                });
+                            } else {
+                                containerItems.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Tidak ada detail item</td></tr>';
+                            }
+
+                            $('#modalDetailPembelian').modal('show');
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('Gagal memuat detail faktur pembelian.');
+                        });
+                });
+            });
         });
     </script>
 @endsection

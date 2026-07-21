@@ -32,20 +32,33 @@
         </div>
 
         {{-- Navbar right links --}}
-        <ul class="navbar-nav ml-auto order-1 order-md-3 navbar-no-expand">
+        <ul class="navbar-nav ml-auto order-1 order-md-3 navbar-no-expand align-items-center">
             {{-- Custom right links --}}
             @yield('content_top_nav_right')
 
             {{-- Configured right links --}}
             @each('adminlte::partials.navbar.menu-item', $adminlte->menu('navbar-right'), 'item')
 
-            {{-- User menu link --}}
             @if(Auth::user())
-                @if(config('adminlte.usermenu_enabled'))
-                    @include('adminlte::partials.navbar.menu-item-dropdown-user-menu')
-                @else
-                    @include('adminlte::partials.navbar.menu-item-logout-link')
-                @endif
+                {{-- Profile Link --}}
+                <li class="nav-item">
+                    <a class="nav-link text-dark d-flex align-items-center" href="{{ route('profile.edit') }}" title="Profil User">
+                        <i class="fas fa-user-circle fa-lg text-primary mr-1"></i>
+                        <span class="d-none d-md-inline font-weight-bold">{{ Auth::user()->nama ?? Auth::user()->name }}</span>
+                    </a>
+                </li>
+
+                {{-- Logout Button --}}
+                <li class="nav-item ml-2">
+                    <a class="nav-link btn btn-outline-danger btn-sm text-danger font-weight-bold px-2 py-1" href="#" 
+                       onclick="event.preventDefault(); document.getElementById('logout-form-topnav').submit();" 
+                       title="Log Out">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </a>
+                    <form id="logout-form-topnav" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                </li>
             @endif
 
             {{-- Right sidebar toggler link --}}

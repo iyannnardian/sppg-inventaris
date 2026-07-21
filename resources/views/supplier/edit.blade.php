@@ -17,6 +17,10 @@
                         <input type="text" class="form-control" id="edit_nama_supplier" name="nama_supplier" required autocomplete="off">
                     </div>
                     <div class="form-group">
+                        <label for="edit_no_telp">No. Telepon</label>
+                        <input type="text" class="form-control" id="edit_no_telp" name="no_telp" placeholder="Contoh: 081234567890" autocomplete="off">
+                    </div>
+                    <div class="form-group">
                         <label for="edit_alamat">Alamat Supplier</label>
                         <textarea class="form-control" id="edit_alamat" name="alamat" rows="3"></textarea>
                     </div>

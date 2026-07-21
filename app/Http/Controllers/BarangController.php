@@ -4,27 +4,25 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Barang;
-use App\Models\Kategori;
+use App\Models\SubKategori;
+use App\Models\Satuan;
 use Illuminate\Support\Facades\Auth;
 
 class BarangController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Barang::with('kategori');
+        $query = Barang::with(['subKategori.kategori', 'satuan']);
 
-        if ($request->filled('search')) {
-            $query->where('nama_barang', 'like', '%' . $request->search . '%');
-        }
-
-        if ($request->filled('id_kategori') && $request->id_kategori != 'all') {
-            $query->where('id_kategori', $request->id_kategori);
+        if ($request->filled('id_subkategori') && $request->id_subkategori != 'all') {
+            $query->where('id_subkategori', $request->id_subkategori);
         }
 
         $barangs = $query->get();
-        $kategoris = Kategori::all();
+        $subKategoris = SubKategori::with('kategori')->get();
+        $satuans = Satuan::all();
         
-        return view('barang.index', compact('barangs', 'kategoris'));
+        return view('barang.index', compact('barangs', 'subKategoris', 'satuans'));
     }
 
     public function create()
@@ -39,30 +37,34 @@ class BarangController extends Controller
 
     public function store(Request $request)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk menambah barang.');
+        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $request->validate([
+            'kode_barang' => 'nullable|string|max:50|unique:barangs,kode_barang',
             'nama_barang' => 'required|string|max:255',
-            'satuan' => 'required|string|max:50',
-            'id_kategori' => 'required|exists:kategoris,id_kategori',
-            'stok_awal' => 'required|integer|min:0',
+            'id_subkategori' => 'required|exists:sub_kategoris,id_subkategori',
+            'id_satuan' => 'required|exists:satuans,id_satuan',
+            'stok_minimum' => 'nullable|numeric|min:0',
+            'harga_terakhir' => 'nullable|numeric|min:0',
         ], [
+            'kode_barang.max' => 'Kode barang maksimal 50 karakter.',
+            'kode_barang.unique' => 'Kode barang sudah terdaftar.',
             'nama_barang.required' => 'Nama barang wajib diisi.',
-            'satuan.required' => 'Satuan barang wajib diisi.',
-            'id_kategori.required' => 'Kategori wajib dipilih.',
-            'id_kategori.exists' => 'Kategori tidak valid.',
-            'stok_awal.required' => 'Stok awal wajib diisi.',
-            'stok_awal.integer' => 'Stok awal harus berupa angka.',
-            'stok_awal.min' => 'Stok awal tidak boleh negatif.',
+            'id_subkategori.required' => 'Sub-Kategori wajib dipilih.',
+            'id_subkategori.exists' => 'Sub-Kategori tidak valid.',
+            'id_satuan.required' => 'Satuan barang wajib dipilih.',
+            'id_satuan.exists' => 'Satuan barang tidak valid.',
         ]);
 
         Barang::create([
+            'kode_barang' => $request->kode_barang,
             'nama_barang' => $request->nama_barang,
-            'satuan' => $request->satuan,
-            'id_kategori' => $request->id_kategori,
-            'stok_awal' => $request->stok_awal,
+            'id_subkategori' => $request->id_subkategori,
+            'id_satuan' => $request->id_satuan,
+            'stok_minimum' => $request->stok_minimum ?? 0,
+            'harga_terakhir' => $request->harga_terakhir ?? 0,
         ]);
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan!');
@@ -70,32 +72,36 @@ class BarangController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk mengubah barang.');
+        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $barang = Barang::findOrFail($id);
 
         $request->validate([
+            'kode_barang' => 'nullable|string|max:50|unique:barangs,kode_barang,' . $id . ',id_barang',
             'nama_barang' => 'required|string|max:255',
-            'satuan' => 'required|string|max:50',
-            'id_kategori' => 'required|exists:kategoris,id_kategori',
-            'stok_awal' => 'required|integer|min:0',
+            'id_subkategori' => 'required|exists:sub_kategoris,id_subkategori',
+            'id_satuan' => 'required|exists:satuans,id_satuan',
+            'stok_minimum' => 'nullable|numeric|min:0',
+            'harga_terakhir' => 'nullable|numeric|min:0',
         ], [
+            'kode_barang.max' => 'Kode barang maksimal 50 karakter.',
+            'kode_barang.unique' => 'Kode barang sudah terdaftar.',
             'nama_barang.required' => 'Nama barang wajib diisi.',
-            'satuan.required' => 'Satuan barang wajib diisi.',
-            'id_kategori.required' => 'Kategori wajib dipilih.',
-            'id_kategori.exists' => 'Kategori tidak valid.',
-            'stok_awal.required' => 'Stok awal wajib diisi.',
-            'stok_awal.integer' => 'Stok awal harus berupa angka.',
-            'stok_awal.min' => 'Stok awal tidak boleh negatif.',
+            'id_subkategori.required' => 'Sub-Kategori wajib dipilih.',
+            'id_subkategori.exists' => 'Sub-Kategori tidak valid.',
+            'id_satuan.required' => 'Satuan barang wajib dipilih.',
+            'id_satuan.exists' => 'Satuan barang tidak valid.',
         ]);
 
         $barang->update([
+            'kode_barang' => $request->kode_barang,
             'nama_barang' => $request->nama_barang,
-            'satuan' => $request->satuan,
-            'id_kategori' => $request->id_kategori,
-            'stok_awal' => $request->stok_awal,
+            'id_subkategori' => $request->id_subkategori,
+            'id_satuan' => $request->id_satuan,
+            'stok_minimum' => $request->stok_minimum ?? 0,
+            'harga_terakhir' => $request->harga_terakhir ?? 0,
         ]);
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil diubah!');
@@ -103,13 +109,13 @@ class BarangController extends Controller
 
     public function destroy($id)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk menghapus barang.');
+        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $barang = Barang::findOrFail($id);
 
-        if ($barang->barangMasuks()->count() > 0 || $barang->barangKeluars()->count() > 0) {
+        if ($barang->pembelianDetails()->count() > 0 || $barang->pengeluaranDetails()->count() > 0) {
             return redirect()->route('barang.index')->with('error', 'Barang tidak dapat dihapus karena sudah memiliki riwayat transaksi.');
         }
 

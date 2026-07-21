@@ -16,6 +16,10 @@
                         <input type="text" class="form-control" id="nama_supplier" name="nama_supplier" placeholder="Contoh: PT. Sumber Protein, Toko Sayur Sehat" required autocomplete="off">
                     </div>
                     <div class="form-group">
+                        <label for="no_telp">No. Telepon</label>
+                        <input type="text" class="form-control" id="no_telp" name="no_telp" placeholder="Contoh: 081234567890" autocomplete="off">
+                    </div>
+                    <div class="form-group">
                         <label for="alamat">Alamat Supplier</label>
                         <textarea class="form-control" id="alamat" name="alamat" rows="3" placeholder="Masukkan alamat lengkap supplier (opsional)"></textarea>
                     </div>
