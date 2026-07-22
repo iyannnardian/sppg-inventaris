@@ -102,13 +102,13 @@
 
         <!-- Pengeluaran Bulan Ini -->
         <div class="col-md-4 mb-4">
-            <div class="small-box bg-warning shadow-sm" style="border-radius: 12px; overflow: hidden;">
+            <div class="small-box bg-warning text-white shadow-sm" style="border-radius: 12px; overflow: hidden; color: #ffffff !important;">
                 <div class="inner p-3">
-                    <h3 class="font-weight-bold mb-1">{{ $pengeluaranBulanIni }}</h3>
-                    <p class="font-weight-bold text-uppercase mb-0" style="font-size: 12px; letter-spacing: 0.5px;">PENGELUARAN BULAN INI</p>
+                    <h3 class="font-weight-bold mb-1" style="color: #ffffff !important;">{{ $pengeluaranBulanIni }}</h3>
+                    <p class="font-weight-bold text-uppercase mb-0" style="font-size: 12px; letter-spacing: 0.5px; color: #ffffff !important;">PENGELUARAN BULAN INI</p>
                 </div>
                 <div class="icon">
-                    <i class="fas fa-dolly"></i>
+                    <i class="fas fa-dolly" style="color: rgba(255, 255, 255, 0.3) !important;"></i>
                 </div>
             </div>
         </div>

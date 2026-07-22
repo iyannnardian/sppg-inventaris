@@ -140,13 +140,13 @@ class LaporanController extends Controller
                 ->whereHas('pembelian', function ($q) use ($tglAwalStr, $tglAkhirStr) {
                     $q->where('status', 'Diterima')
                       ->whereBetween('tgl_terima', [$tglAwalStr, $tglAkhirStr]);
-                })->sum('qty');
+                })->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(qty_terima, qty)'));
 
             $masukSetelah = PembelianDetail::where('id_barang', $barang->id_barang)
                 ->whereHas('pembelian', function ($q) use ($tglAkhirStr) {
                     $q->where('status', 'Diterima')
                       ->where('tgl_terima', '>', $tglAkhirStr);
-                })->sum('qty');
+                })->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(qty_terima, qty)'));
 
             // Expenses (Pengeluaran)
             $keluar = PengeluaranDetail::where('id_barang', $barang->id_barang)
@@ -171,7 +171,7 @@ class LaporanController extends Controller
                 ->orderBy('id_detail', 'desc')
                 ->first();
 
-            $harga_beli_akhir = $lastPurchaseDetail ? $lastPurchaseDetail->harga : ($barang->harga_terakhir ?? 0);
+            $harga_beli_akhir = $lastPurchaseDetail ? $lastPurchaseDetail->harga : 0;
 
             $barang->saldo_awal = $saldo_awal;
             $barang->masuk = $masuk;

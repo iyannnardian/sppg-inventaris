@@ -81,12 +81,11 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead style="background-color: #fafafa; border-bottom: 1px solid #f0f0f0;">
                             <tr>
-                                <th style="width: 8%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="pl-4 py-3">NO</th>
-                                <th style="width: 17%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">TGL PENGELUARAN</th>
-                                <th style="width: 20%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">PETUGAS</th>
-                                <th style="width: 30%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">RINCIAN BARANG</th>
-                                <th style="width: 10%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3 text-center">TOTAL ITEM</th>
-                                <th style="width: 15%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="text-right pr-4 py-3">AKSI</th>
+                                <th style="width: 10%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="pl-4 py-3">NO</th>
+                                <th style="width: 25%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">TGL PENGELUARAN</th>
+                                <th style="width: 30%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">PETUGAS</th>
+                                <th style="width: 15%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3 text-center">TOTAL ITEM</th>
+                                <th style="width: 20%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="text-right pr-4 py-3">AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -99,23 +98,6 @@
                                 <td>
                                     <i class="fas fa-user-circle mr-1 text-secondary"></i> {{ $t->user->nama ?? $t->user->name ?? 'User' }}
                                 </td>
-                                <td>
-                                    @if($t->details->isNotEmpty())
-                                        <ul class="mb-0 pl-3">
-                                            @foreach($t->details->take(2) as $d)
-                                                <li>
-                                                    <strong>{{ $d->barang->nama_barang ?? 'Barang Terhapus' }}</strong> 
-                                                    <span class="badge badge-light border text-danger ml-1">-{{ number_format($d->qty, 0, ',', '.') }} {{ $d->barang->satuan->nama_satuan ?? '' }}</span>
-                                                </li>
-                                            @endforeach
-                                            @if($t->details->count() > 2)
-                                                <li class="text-muted small"><em>+{{ $t->details->count() - 2 }} barang lainnya...</em></li>
-                                            @endif
-                                        </ul>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
                                 <td class="text-center font-weight-bold text-dark" style="font-size: 14px;">
                                     {{ $t->details->count() }} Item
                                 </td>
@@ -127,6 +109,11 @@
                                         </button>
 
                                         @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+                                            <!-- Tombol Edit -->
+                                            <button type="button" class="btn btn-warning btn-sm font-weight-bold text-white btn-edit-pengeluaran mr-1" data-id="{{ $t->id_pengeluaran }}" title="Edit Transaksi">
+                                                <i class="fas fa-pencil-alt mr-1"></i> Edit
+                                            </button>
+
                                             <!-- Tombol Hapus -->
                                             <form action="{{ route('barang-keluar.destroy', $t->id_pengeluaran) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus transaksi pengeluaran ini? Stok barang akan otomatis dikembalikan.');" class="d-inline">
                                                 @csrf
@@ -149,6 +136,7 @@
 
     @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
         @include('barang-keluar.create')
+        @include('barang-keluar.edit')
     @endif
 
     @include('barang-keluar.show')
@@ -323,6 +311,184 @@
                         .catch(err => {
                             console.error(err);
                             alert('Gagal memuat detail pengeluaran.');
+                        });
+                });
+            });
+
+            // Handler Modal Edit Pengeluaran
+            const editButtons = document.querySelectorAll('.btn-edit-pengeluaran');
+            const editContainerBaris = document.getElementById('editContainerBarisItem');
+            const editBtnTambahBaris = document.getElementById('editBtnTambahBarisItem');
+            const editBtnSubmitPengeluaran = document.getElementById('editBtnSubmitPengeluaran');
+            let editItemIndex = 0;
+            let editCurrentDetails = {};
+
+            if (editBtnTambahBaris && editContainerBaris) {
+                editBtnTambahBaris.addEventListener('click', function () {
+                    tambahBarisEdit();
+                });
+            }
+
+            function tambahBarisEdit(selectedBarangId = '', qty = '') {
+                if (!editContainerBaris) return;
+
+                const valQty = (qty !== '' && qty !== null && qty !== undefined) ? parseFloat(qty) : '';
+
+                const tr = document.createElement('tr');
+                tr.className = 'edit-baris-item';
+                tr.innerHTML = `
+                    <td>
+                        <select class="form-control edit-select-barang" name="items[${editItemIndex}][id_barang]" required style="border-radius: 8px;">
+                            ${barangOptionsHtml}
+                        </select>
+                        <small class="text-muted edit-info-satuan-item d-block mt-1"></small>
+                    </td>
+                    <td>
+                        <input type="number" step="any" min="0.01" class="form-control edit-input-qty" name="items[${editItemIndex}][qty]" value="${valQty}" placeholder="0" required style="border-radius: 8px;" inputmode="decimal">
+                        <small class="text-danger edit-warning-stok-exceeded d-none font-weight-bold mt-1">Stok tidak mencukupi!</small>
+                    </td>
+                    <td class="text-center align-middle">
+                        <button type="button" class="btn btn-link text-muted p-0 edit-btn-hapus-baris" title="Hapus Baris" style="font-size: 16px;">&times;</button>
+                    </td>
+                `;
+                editContainerBaris.appendChild(tr);
+
+                const selectBarang = tr.querySelector('.edit-select-barang');
+                if (selectedBarangId) {
+                    selectBarang.value = selectedBarangId;
+                }
+
+                bindEditRowEvents(tr);
+                editItemIndex++;
+            }
+
+            function bindEditRowEvents(row) {
+                const selectBarang = row.querySelector('.edit-select-barang');
+                const inputQty = row.querySelector('.edit-input-qty');
+                const infoSatuan = row.querySelector('.edit-info-satuan-item');
+                const warningStok = row.querySelector('.edit-warning-stok-exceeded');
+                const btnHapus = row.querySelector('.edit-btn-hapus-baris');
+
+                inputQty.addEventListener('keydown', function(e) {
+                    if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+                        (e.keyCode === 65 && e.ctrlKey === true) ||
+                        (e.keyCode >= 35 && e.keyCode <= 40)) {
+                        return;
+                    }
+                    if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+                        e.preventDefault();
+                    }
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+
+                inputQty.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9.]/g, '');
+                    validasiEditStokBaris();
+                });
+
+                selectBarang.addEventListener('change', function () {
+                    validasiEditStokBaris();
+                });
+
+                btnHapus.addEventListener('click', function () {
+                    const totalRows = editContainerBaris.querySelectorAll('.edit-baris-item').length;
+                    if (totalRows > 1) {
+                        row.remove();
+                        checkAllEditStokValid();
+                    } else {
+                        alert('Minimal 1 barang harus ada dalam pengeluaran!');
+                    }
+                });
+
+                function validasiEditStokBaris() {
+                    const opt = selectBarang.options[selectBarang.selectedIndex];
+                    if (opt && opt.value !== '') {
+                        const barangId = opt.value;
+                        const originalStok = parseFloat(opt.getAttribute('data-stok')) || 0;
+                        const satuan = opt.getAttribute('data-satuan') || '';
+                        const qty = parseFloat(inputQty.value) || 0;
+
+                        const returnQty = editCurrentDetails[barangId] || 0;
+                        const availableStok = originalStok + returnQty;
+
+                        infoSatuan.textContent = `Stok tersedia: ${availableStok} ${satuan}`;
+
+                        if (qty > availableStok) {
+                            warningStok.textContent = `Stok tidak cukup! (Stok tersedia: ${availableStok} ${satuan})`;
+                            warningStok.classList.remove('d-none');
+                        } else {
+                            warningStok.classList.add('d-none');
+                        }
+                    }
+                    checkAllEditStokValid();
+                }
+
+                validasiEditStokBaris();
+            }
+
+            function checkAllEditStokValid() {
+                if (!editContainerBaris) return;
+                let isValid = true;
+                const rows = editContainerBaris.querySelectorAll('.edit-baris-item');
+                rows.forEach(row => {
+                    const select = row.querySelector('.edit-select-barang');
+                    const input = row.querySelector('.edit-input-qty');
+
+                    const opt = select.options[select.selectedIndex];
+                    if (opt && opt.value !== '') {
+                        const barangId = opt.value;
+                        const originalStok = parseFloat(opt.getAttribute('data-stok')) || 0;
+                        const qty = parseFloat(input.value) || 0;
+                        const returnQty = editCurrentDetails[barangId] || 0;
+                        const availableStok = originalStok + returnQty;
+
+                        if (qty > availableStok || qty <= 0) {
+                            isValid = false;
+                        }
+                    }
+                });
+
+                if (editBtnSubmitPengeluaran) {
+                    editBtnSubmitPengeluaran.disabled = !isValid;
+                }
+            }
+
+            editButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    fetch(`/barang-keluar/${id}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            document.getElementById('formEditPengeluaran').action = `/barang-keluar/${id}`;
+                            document.getElementById('edit_tgl_pengeluaran').value = data.tgl_pengeluaran || '';
+
+                            editCurrentDetails = {};
+                            if (data.details && data.details.length > 0) {
+                                data.details.forEach(item => {
+                                    editCurrentDetails[item.id_barang] = (editCurrentDetails[item.id_barang] || 0) + (parseFloat(item.qty) || 0);
+                                });
+                            }
+
+                            if (editContainerBaris) {
+                                editContainerBaris.innerHTML = '';
+                                editItemIndex = 0;
+
+                                if (data.details && data.details.length > 0) {
+                                    data.details.forEach(item => {
+                                        tambahBarisEdit(item.id_barang, item.qty);
+                                    });
+                                } else {
+                                    tambahBarisEdit();
+                                }
+                            }
+
+                            $('#modalEditPengeluaran').modal('show');
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('Gagal memuat data transaksi pengeluaran untuk diedit.');
                         });
                 });
             });

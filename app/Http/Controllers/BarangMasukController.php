@@ -60,7 +60,7 @@ class BarangMasukController extends Controller
                             ->orderBy('id_pembelian', 'desc')
                             ->get();
 
-        $autoNoFaktur = 'FKT-' . date('Ymd') . '-' . sprintf('%03d', Pembelian::count() + 1);
+        $autoNoFaktur = '';
 
         return view('barang-masuk.index', compact(
             'barangs',
@@ -124,24 +124,28 @@ class BarangMasukController extends Controller
                 'total_belanja' => 0,
             ]);
 
+            $hasQtyTerimaColumn = \Illuminate\Support\Facades\Schema::hasColumn('pembelian_details', 'qty_terima');
+
             foreach ($request->items as $item) {
-                $subtotal = $item['qty'] * $item['harga'];
+                $qtyTerima = ($status === 'Diterima' && isset($item['qty_terima']) && $item['qty_terima'] !== '') ? $item['qty_terima'] : ($status === 'Diterima' ? $item['qty'] : null);
+                $qtyForSubtotal = $qtyTerima !== null ? $qtyTerima : $item['qty'];
+                $subtotal = $qtyForSubtotal * $item['harga'];
                 $totalBelanja += $subtotal;
 
-                PembelianDetail::create([
+                $detailData = [
                     'id_pembelian' => $pembelian->id_pembelian,
                     'id_barang' => $item['id_barang'],
                     'qty' => $item['qty'],
                     'harga' => $item['harga'],
                     'subtotal' => $subtotal,
-                ]);
-
-                if ($status === 'Diterima') {
-                    $barang = Barang::find($item['id_barang']);
-                    if ($barang) {
-                        $barang->update(['harga_terakhir' => $item['harga']]);
-                    }
+                ];
+                if ($hasQtyTerimaColumn) {
+                    $detailData['qty_terima'] = $qtyTerima;
                 }
+
+                PembelianDetail::create($detailData);
+
+
             }
 
             $pembelian->update(['total_belanja' => $totalBelanja]);
@@ -166,7 +170,7 @@ class BarangMasukController extends Controller
         $oldStatus = $pembelian->status;
         $newStatus = $request->status;
 
-        if ($oldStatus === $newStatus) {
+        if ($oldStatus === $newStatus && !$request->has('items')) {
             return redirect()->route('barang-masuk.index');
         }
 
@@ -175,30 +179,75 @@ class BarangMasukController extends Controller
                 $barang = $detail->barang;
                 if ($barang) {
                     $currentStok = $barang->stok;
-                    if (($currentStok - $detail->qty) < 0) {
-                        return redirect()->route('barang-masuk.index')->with('error', "Gagal mengubah status! Pengurangan stok barang '{$barang->nama_barang}' sebanyak {$detail->qty} akan menyebabkan stok menjadi negatif (stok saat ini: {$currentStok}).");
+                    $effectiveQty = $detail->qty_terima !== null ? $detail->qty_terima : $detail->qty;
+                    if (($currentStok - $effectiveQty) < 0) {
+                        return redirect()->route('barang-masuk.index')->with('error', "Gagal mengubah status! Pengurangan stok barang '{$barang->nama_barang}' sebanyak {$effectiveQty} akan menyebabkan stok menjadi negatif (stok saat ini: {$currentStok}).");
                     }
                 }
             }
         }
 
-        DB::transaction(function () use ($pembelian, $newStatus) {
-            $pembelian->update(['status' => $newStatus]);
+        $overReceived = [];
+        $underReceived = [];
+
+        DB::transaction(function () use ($pembelian, $newStatus, $request, &$overReceived, &$underReceived) {
+            $pembelianData = ['status' => $newStatus];
 
             if ($newStatus === 'Diterima') {
+                $totalBelanja = 0;
+                $itemInputs = $request->input('items', []);
+                $hasQtyTerimaColumn = \Illuminate\Support\Facades\Schema::hasColumn('pembelian_details', 'qty_terima');
+
                 foreach ($pembelian->details as $detail) {
-                    if ($detail->barang) {
-                        $detail->barang->update(['harga_terakhir' => $detail->harga]);
+                    $idDetail = $detail->id_detail;
+                    $qtyTerima = isset($itemInputs[$idDetail]['qty_terima']) && $itemInputs[$idDetail]['qty_terima'] !== ''
+                        ? (float)$itemInputs[$idDetail]['qty_terima'] 
+                        : ($detail->qty_terima !== null ? (float)$detail->qty_terima : (float)$detail->qty);
+
+                    $subtotal = $qtyTerima * $detail->harga;
+                    $totalBelanja += $subtotal;
+
+                    $updateData = [
+                        'subtotal' => $subtotal,
+                    ];
+                    if ($hasQtyTerimaColumn) {
+                        $updateData['qty_terima'] = $qtyTerima;
+                    }
+
+                    $detail->update($updateData);
+
+
+
+                    $namaBarang = $detail->barang ? $detail->barang->nama_barang : 'Barang';
+                    $qtyPesan = (float)$detail->qty;
+                    if ($qtyTerima > $qtyPesan) {
+                        $selisih = $qtyTerima - $qtyPesan;
+                        $overReceived[] = "{$namaBarang} (+{$selisih})";
+                    } elseif ($qtyTerima < $qtyPesan) {
+                        $selisih = $qtyPesan - $qtyTerima;
+                        $underReceived[] = "{$namaBarang} (-{$selisih})";
                     }
                 }
+
+                $pembelianData['total_belanja'] = $totalBelanja;
             }
+
+            $pembelian->update($pembelianData);
         });
 
-        $msg = $newStatus === 'Diterima'
-            ? "Status faktur {$pembelian->no_faktur} diubah menjadi DITERIMA. Stok barang berhasil ditambahkan ke persediaan!"
-            : ($newStatus === 'Batal' 
-                ? "Status faktur {$pembelian->no_faktur} diubah menjadi DIBATALKAN. Stok yang masuk sebelumnya telah ditarik." 
-                : "Status faktur {$pembelian->no_faktur} diubah menjadi DRAF.");
+        if ($newStatus === 'Diterima') {
+            $msg = "Faktur {$pembelian->no_faktur} DITERIMA & stok diperbarui!";
+            if (!empty($overReceived)) {
+                $msg .= " ⚠️ Barang Lebih: " . implode(', ', $overReceived) . ".";
+            }
+            if (!empty($underReceived)) {
+                $msg .= " ℹ️Di Terima Dan Barang Kurang: " . implode(', ', $underReceived) . ".";
+            }
+        } elseif ($newStatus === 'Batal') {
+            $msg = "Status faktur {$pembelian->no_faktur} diubah menjadi DIBATALKAN. Stok yang masuk sebelumnya telah ditarik.";
+        } else {
+            $msg = "Status faktur {$pembelian->no_faktur} diubah menjadi DRAF.";
+        }
 
         return redirect()->route('barang-masuk.index')->with('success', $msg);
     }
@@ -255,12 +304,7 @@ class BarangMasukController extends Controller
                     'subtotal' => $subtotal,
                 ]);
 
-                if ($request->status === 'Diterima') {
-                    $barang = Barang::find($item['id_barang']);
-                    if ($barang) {
-                        $barang->update(['harga_terakhir' => $item['harga']]);
-                    }
-                }
+
             }
 
             $pembelian->update([

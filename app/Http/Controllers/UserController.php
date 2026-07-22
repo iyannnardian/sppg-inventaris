@@ -41,14 +41,14 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:255|unique:users,username',
             'role' => 'required|string',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:8',
         ], [
             'name.required' => 'Nama wajib diisi.',
             'email.required' => 'Email / Username wajib diisi.',
             'email.unique' => 'Email / Username ini sudah digunakan oleh akun lain.',
             'role.required' => 'Peran wajib dipilih.',
             'password.required' => 'Kata sandi wajib diisi.',
-            'password.min' => 'Kata sandi minimal terdiri dari 6 karakter.',
+            'password.min' => 'Kata sandi minimal terdiri dari 8 karakter.',
         ]);
 
         User::create([
@@ -71,13 +71,13 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:255|unique:users,username,' . $id . ',id_user',
             'role' => 'required|string',
-            'password' => 'nullable|string|min:6',
+            'password' => 'nullable|string|min:8',
         ], [
             'name.required' => 'Nama wajib diisi.',
             'email.required' => 'Email / Username wajib diisi.',
             'email.unique' => 'Email / Username ini sudah digunakan oleh akun lain.',
             'role.required' => 'Peran wajib dipilih.',
-            'password.min' => 'Kata sandi minimal terdiri dari 6 karakter.',
+            'password.min' => 'Kata sandi minimal terdiri dari 8 karakter.',
         ]);
 
         $userData = [

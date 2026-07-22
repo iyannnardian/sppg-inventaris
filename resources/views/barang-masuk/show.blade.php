@@ -21,7 +21,7 @@
                                 <td>: <span id="detail_supplier"></span></td>
                             </tr>
                             <tr>
-                                <th class="text-secondary">Status</th>
+                                <th class="text-secondary">Status Faktur</th>
                                 <td>: <span id="detail_status"></span></td>
                             </tr>
                         </table>
@@ -44,16 +44,17 @@
                     </div>
                 </div>
 
-                <h6 class="font-weight-bold text-secondary mb-2" style="font-size: 13px;">Rincian Barang (Pembelian_Detail):</h6>
+                <h6 class="font-weight-bold text-secondary mb-2" style="font-size: 13px;">Rincian Barang:</h6>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead style="background-color: #fafafa; border-bottom: 1px solid #f0f0f0;">
                             <tr>
                                 <th style="width: 5%; font-size: 11px; color: #8c8c8c;">NO</th>
-                                <th style="width: 40%; font-size: 11px; color: #8c8c8c;">BARANG</th>
-                                <th style="width: 15%; font-size: 11px; color: #8c8c8c;" class="text-center">QTY</th>
-                                <th style="width: 20%; font-size: 11px; color: #8c8c8c;" class="text-right">HARGA SATUAN</th>
-                                <th style="width: 20%; font-size: 11px; color: #8c8c8c;" class="text-right">SUBTOTAL</th>
+                                <th style="width: 35%; font-size: 11px; color: #8c8c8c;">BARANG</th>
+                                <th style="width: 15%; font-size: 11px; color: #8c8c8c;" class="text-center">QTY PESAN</th>
+                                <th style="width: 15%; font-size: 11px; color: #8c8c8c;" class="text-center">QTY TERIMA</th>
+                                <th style="width: 15%; font-size: 11px; color: #8c8c8c;" class="text-right">HARGA</th>
+                                <th style="width: 15%; font-size: 11px; color: #8c8c8c;" class="text-right">SUBTOTAL</th>
                             </tr>
                         </thead>
                         <tbody id="detail_container_items">

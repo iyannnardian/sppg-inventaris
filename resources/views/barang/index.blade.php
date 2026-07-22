@@ -78,12 +78,11 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead style="background-color: #fafafa; border-bottom: 1px solid #f0f0f0;">
                             <tr>
-                                <th style="width: 12%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="pl-4 py-3">KODE</th>
-                                <th style="width: 22%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">NAMA BARANG</th>
-                                <th style="width: 25%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">KATEGORI</th>
-                                <th style="width: 12%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">SATUAN</th>
-                                <th style="width: 12%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">STOK</th>
-                                <th style="width: 17%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">HARGA TERAKHIR</th>
+                                <th style="width: 15%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="pl-4 py-3">KODE</th>
+                                <th style="width: 30%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">NAMA BARANG</th>
+                                <th style="width: 30%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">KATEGORI</th>
+                                <th style="width: 15%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">SATUAN</th>
+                                <th style="width: 10%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">STOK</th>
                                 @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
                                     <th style="width: 10%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="text-right pr-4 py-3">AKSI</th>
                                 @endif
@@ -107,9 +106,6 @@
                                 <td>
                                     {{ number_format($b->stok, 0, ',', '.') }}
                                 </td>
-                                <td>
-                                    Rp {{ number_format($b->harga_terakhir, 0, ',', '.') }}
-                                </td>
                                 @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
                                 <td class="text-right pr-4">
                                     <div class="d-flex justify-content-end gap-2">
@@ -120,7 +116,6 @@
                                                 data-subkategori="{{ $b->id_subkategori }}"
                                                 data-satuan="{{ $b->id_satuan }}"
                                                 data-stok_minimum="{{ $b->stok_minimum }}"
-                                                data-harga_terakhir="{{ $b->harga_terakhir }}"
                                                 data-toggle="modal" 
                                                 data-target="#modalEdit"
                                                 title="Edit Barang">
@@ -160,7 +155,6 @@
             const selectSubKategori = document.getElementById('edit_id_subkategori');
             const selectSatuan = document.getElementById('edit_id_satuan');
             const inputStokMinimum = document.getElementById('edit_stok_minimum');
-            const inputHargaTerakhir = document.getElementById('edit_harga_terakhir');
 
             editButtons.forEach(button => {
                 button.addEventListener('click', function () {
@@ -170,7 +164,6 @@
                     const subKategori = this.getAttribute('data-subkategori');
                     const satuan = this.getAttribute('data-satuan');
                     const stokMin = this.getAttribute('data-stok_minimum');
-                    const hargaTerakhir = this.getAttribute('data-harga_terakhir');
 
                     formEdit.setAttribute('action', `/barang/${id}`);
                     inputKode.value = kode ?? '';
@@ -178,7 +171,6 @@
                     selectSubKategori.value = subKategori;
                     selectSatuan.value = satuan;
                     inputStokMinimum.value = stokMin ?? 0;
-                    inputHargaTerakhir.value = hargaTerakhir ?? 0;
                 });
             });
             @endif

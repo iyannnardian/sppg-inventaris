@@ -18,7 +18,8 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="no_faktur" class="font-weight-bold text-secondary" style="font-size: 13px;">No. Faktur (unik)</label>
-                            <input type="text" class="form-control bg-light" id="no_faktur" name="no_faktur" value="{{ old('no_faktur', $autoNoFaktur) }}" required style="border-radius: 8px;">
+                            <input type="text" class="form-control" id="no_faktur" name="no_faktur" value="{{ old('no_faktur') }}" placeholder="Masukkan No. Faktur" required style="border-radius: 8px;">
+
                         </div>
                         <div class="form-group col-md-6">
                             <label for="id_supplier_create" class="font-weight-bold text-secondary" style="font-size: 13px;">Supplier</label>
@@ -64,7 +65,7 @@
                                         <select class="form-control select-barang" name="items[0][id_barang]" required style="border-radius: 8px;">
                                             <option value="" disabled selected>— Pilih barang —</option>
                                             @foreach($barangs as $b)
-                                                <option value="{{ $b->id_barang }}" data-harga="{{ $b->harga_terakhir }}" data-satuan="{{ $b->satuan->nama_satuan ?? '' }}">
+                                                <option value="{{ $b->id_barang }}" data-satuan="{{ $b->satuan->nama_satuan ?? '' }}">
                                                     {{ $b->nama_barang }}
                                                 </option>
                                             @endforeach

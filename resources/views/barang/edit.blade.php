@@ -45,13 +45,9 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6 form-group mb-3">
+                        <div class="col-md-12 form-group mb-3">
                             <label for="edit_stok_minimum" class="small font-weight-bold text-secondary">Stok Minimum</label>
                             <input type="number" class="form-control form-control-lg bg-light border-0" id="edit_stok_minimum" name="stok_minimum" value="0" min="0" step="any" style="border-radius: 8px; font-size: 14px;">
-                        </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label for="edit_harga_terakhir" class="small font-weight-bold text-secondary">Harga Terakhir (Rp)</label>
-                            <input type="number" class="form-control form-control-lg bg-light border-0" id="edit_harga_terakhir" name="harga_terakhir" value="0" min="0" step="any" style="border-radius: 8px; font-size: 14px;">
                         </div>
                     </div>
                 </div>

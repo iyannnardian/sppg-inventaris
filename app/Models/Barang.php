@@ -49,7 +49,7 @@ class Barang extends Model
             ->whereHas('pembelian', function($q) {
                 $q->where('status', 'Diterima');
             })
-            ->sum('qty');
+            ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(qty_terima, qty)'));
 
         $keluar = $this->pengeluaranDetails()->sum('qty');
 

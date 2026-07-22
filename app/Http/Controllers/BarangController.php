@@ -47,7 +47,6 @@ class BarangController extends Controller
             'id_subkategori' => 'required|exists:sub_kategoris,id_subkategori',
             'id_satuan' => 'required|exists:satuans,id_satuan',
             'stok_minimum' => 'nullable|numeric|min:0',
-            'harga_terakhir' => 'nullable|numeric|min:0',
         ], [
             'kode_barang.max' => 'Kode barang maksimal 50 karakter.',
             'kode_barang.unique' => 'Kode barang sudah terdaftar.',
@@ -64,7 +63,6 @@ class BarangController extends Controller
             'id_subkategori' => $request->id_subkategori,
             'id_satuan' => $request->id_satuan,
             'stok_minimum' => $request->stok_minimum ?? 0,
-            'harga_terakhir' => $request->harga_terakhir ?? 0,
         ]);
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan!');
@@ -84,7 +82,6 @@ class BarangController extends Controller
             'id_subkategori' => 'required|exists:sub_kategoris,id_subkategori',
             'id_satuan' => 'required|exists:satuans,id_satuan',
             'stok_minimum' => 'nullable|numeric|min:0',
-            'harga_terakhir' => 'nullable|numeric|min:0',
         ], [
             'kode_barang.max' => 'Kode barang maksimal 50 karakter.',
             'kode_barang.unique' => 'Kode barang sudah terdaftar.',
@@ -101,7 +98,6 @@ class BarangController extends Controller
             'id_subkategori' => $request->id_subkategori,
             'id_satuan' => $request->id_satuan,
             'stok_minimum' => $request->stok_minimum ?? 0,
-            'harga_terakhir' => $request->harga_terakhir ?? 0,
         ]);
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil diubah!');

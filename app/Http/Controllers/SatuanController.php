@@ -84,7 +84,7 @@ class SatuanController extends Controller
         $satuan = Satuan::findOrFail($id);
 
         // Cek apakah satuan sedang digunakan oleh data barang
-        $terpakai = Barang::where('satuan', $satuan->nama_satuan)->count();
+        $terpakai = Barang::where('id_satuan', $satuan->id_satuan)->count();
         if ($terpakai > 0) {
             return redirect()->route('satuan.index')->with('error', 'Satuan "' . $satuan->nama_satuan . '" tidak dapat dihapus karena sedang digunakan oleh ' . $terpakai . ' data barang.');
         }
