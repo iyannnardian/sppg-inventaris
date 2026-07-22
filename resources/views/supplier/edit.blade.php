@@ -18,7 +18,8 @@
                     </div>
                     <div class="form-group">
                         <label for="edit_no_telp">No. Telepon</label>
-                        <input type="text" class="form-control" id="edit_no_telp" name="no_telp" placeholder="Contoh: 081234567890" autocomplete="off">
+                        <input type="text" class="form-control" id="edit_no_telp" name="no_telp" placeholder="Contoh: 081234567890" maxlength="13" minlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" autocomplete="off">
+                        <small class="form-text text-muted">Format: 11 - 13 digit angka saja.</small>
                     </div>
                     <div class="form-group">
                         <label for="edit_alamat">Alamat Supplier</label>

@@ -34,7 +34,7 @@
                     <div class="form-group">
                         <label for="edit_password">Kata Sandi Baru</label>
                         <input type="password" class="form-control" id="edit_password" name="password" placeholder="Biarkan kosong jika tidak ingin mengubah kata sandi">
-                        <small class="text-muted mt-1 d-block">Minimal terdiri dari 6 karakter jika ingin diubah.</small>
+                        <small class="text-muted mt-1 d-block">Minimal terdiri dari 8 karakter jika ingin diubah.</small>
                     </div>
                 </div>
                 <div class="modal-footer border-0">

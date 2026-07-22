@@ -27,23 +27,30 @@ class SatuanController extends Controller
 
     public function store(Request $request)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk menambah satuan.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
+
+        // Trim input agar tidak lolos karena spasi tambahan
+        $request->merge([
+            'nama_satuan' => trim($request->nama_satuan ?? ''),
+            'keterangan' => $request->keterangan ? trim($request->keterangan) : null,
+        ]);
 
         $request->validate([
             'nama_satuan' => 'required|string|max:50|unique:satuans,nama_satuan',
-            'keterangan' => 'nullable|string|max:255',
+            'keterangan' => 'nullable|string|max:255|unique:satuans,keterangan',
         ], [
             'nama_satuan.required' => 'Nama satuan wajib diisi.',
             'nama_satuan.max' => 'Nama satuan maksimal 50 karakter.',
-            'nama_satuan.unique' => 'Nama satuan sudah terdaftar.',
+            'nama_satuan.unique' => 'Nama satuan (singkatan/kode) sudah terdaftar.',
             'keterangan.max' => 'Keterangan maksimal 255 karakter.',
+            'keterangan.unique' => 'Keterangan/deskripsi satuan ini sudah terdaftar.',
         ]);
 
         Satuan::create([
-            'nama_satuan' => trim($request->nama_satuan),
-            'keterangan' => $request->keterangan ? trim($request->keterangan) : null,
+            'nama_satuan' => $request->nama_satuan,
+            'keterangan' => $request->keterangan,
         ]);
 
         return redirect()->route('satuan.index')->with('success', 'Satuan barang berhasil ditambahkan!');
@@ -51,25 +58,32 @@ class SatuanController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk mengubah satuan.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $satuan = Satuan::findOrFail($id);
 
+        // Trim input agar tidak lolos karena spasi tambahan
+        $request->merge([
+            'nama_satuan' => trim($request->nama_satuan ?? ''),
+            'keterangan' => $request->keterangan ? trim($request->keterangan) : null,
+        ]);
+
         $request->validate([
             'nama_satuan' => 'required|string|max:50|unique:satuans,nama_satuan,' . $id . ',id_satuan',
-            'keterangan' => 'nullable|string|max:255',
+            'keterangan' => 'nullable|string|max:255|unique:satuans,keterangan,' . $id . ',id_satuan',
         ], [
             'nama_satuan.required' => 'Nama satuan wajib diisi.',
             'nama_satuan.max' => 'Nama satuan maksimal 50 karakter.',
-            'nama_satuan.unique' => 'Nama satuan sudah terdaftar.',
+            'nama_satuan.unique' => 'Nama satuan (singkatan/kode) sudah terdaftar.',
             'keterangan.max' => 'Keterangan maksimal 255 karakter.',
+            'keterangan.unique' => 'Keterangan/deskripsi satuan ini sudah terdaftar.',
         ]);
 
         $satuan->update([
-            'nama_satuan' => trim($request->nama_satuan),
-            'keterangan' => $request->keterangan ? trim($request->keterangan) : null,
+            'nama_satuan' => $request->nama_satuan,
+            'keterangan' => $request->keterangan,
         ]);
 
         return redirect()->route('satuan.index')->with('success', 'Satuan barang berhasil diperbarui!');
@@ -77,8 +91,8 @@ class SatuanController extends Controller
 
     public function destroy($id)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk menghapus satuan.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $satuan = Satuan::findOrFail($id);

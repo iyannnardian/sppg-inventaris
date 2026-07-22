@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         \Illuminate\Support\Facades\Gate::define('not-kepala-dapur', function ($user) {
-            return !in_array(strtolower($user->role ?? ''), ['kepala dapur', 'kepala sppg']);
+            return strtolower($user->role ?? '') !== 'kepala dapur';
         });
     }
 }

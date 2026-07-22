@@ -33,7 +33,7 @@
 
                     <div class="form-group">
                         <label for="password">Kata Sandi Akun <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Minimal terdiri dari 6 karakter" required>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Minimal terdiri dari 8 karakter" required>
                     </div>
                 </div>
                 <div class="modal-footer border-0">

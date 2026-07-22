@@ -13,8 +13,8 @@ class BarangKeluarController extends Controller
 {
     private function checkAccess()
     {
-        if (Auth::check() && in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk mencatat transaksi pengeluaran.');
+        if (Auth::check() && strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk mencatat transaksi pengeluaran.');
         }
     }
 

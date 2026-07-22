@@ -8,7 +8,7 @@
             <h1 class="m-0 text-dark font-weight-bold" style="font-size: 26px;">Pengeluaran Barang</h1>
             <p class="text-muted mb-0" style="font-size: 14px;">Transaksi pengeluaran / pemakaian bahan baku dapur</p>
         </div>
-        @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+        @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
             <div class="mt-md-0 mt-3">
                 <button class="btn btn-primary font-weight-bold px-3 py-2 shadow-sm" data-toggle="modal" data-target="#modalTambahPengeluaran" style="border-radius: 6px;">
                     + Catat Pengeluaran
@@ -108,7 +108,7 @@
                                             <i class="fas fa-eye mr-1"></i> Detail
                                         </button>
 
-                                        @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+                                        @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
                                             <!-- Tombol Edit -->
                                             <button type="button" class="btn btn-warning btn-sm font-weight-bold text-white btn-edit-pengeluaran mr-1" data-id="{{ $t->id_pengeluaran }}" title="Edit Transaksi">
                                                 <i class="fas fa-pencil-alt mr-1"></i> Edit
@@ -134,7 +134,7 @@
         </div>
     </div>
 
-    @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+    @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
         @include('barang-keluar.create')
         @include('barang-keluar.edit')
     @endif

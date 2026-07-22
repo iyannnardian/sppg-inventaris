@@ -8,7 +8,7 @@
             <h1 class="m-0 text-dark"><i class="fas fa-truck mr-2"></i>Kelola Supplier</h1>
             <p class="text-muted mb-0">Kelola daftar penyedia/supplier bahan baku dapur</p>
         </div>
-        @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+        @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
             <button class="btn btn-primary" data-toggle="modal" data-target="#modalTambah"><i class="fas fa-plus-circle mr-1"></i> Tambah Supplier</button>
         @endif
     </div>
@@ -57,7 +57,7 @@
                     <i class="fas fa-truck fa-3x mb-3 text-secondary"></i>
                     <h5>Belum ada data supplier</h5>
                     <p>Silakan daftarkan supplier untuk mencatat transaksi barang masuk.</p>
-                    @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+                    @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
                         <button class="btn btn-primary mt-2" data-toggle="modal" data-target="#modalTambah"><i class="fas fa-plus-circle mr-1"></i> Tambah Supplier Pertama</button>
                     @endif
                 </div>
@@ -70,7 +70,7 @@
                                 <th style="width: 25%">Nama Supplier</th>
                                 <th style="width: 20%">No. Telepon</th>
                                 <th style="width: 35%">Alamat</th>
-                                @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+                                @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
                                     <th style="width: 15%" class="text-right">Aksi</th>
                                 @endif
                             </tr>
@@ -82,7 +82,7 @@
                                 <td class="font-weight-bold text-dark">{{ $s->nama_supplier }}</td>
                                 <td>{{ $s->no_telp ?? '-' }}</td>
                                 <td>{{ $s->alamat ?? '-' }}</td>
-                                @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+                                @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
                                 <td class="text-right">
                                     <div class="d-flex justify-content-end gap-2">
                                         <button class="btn btn-warning btn-sm text-white btn-edit" 
@@ -112,7 +112,7 @@
         </div>
     </div>
 
-    @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+    @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
         @include('supplier.create')
         @include('supplier.edit')
     @endif
@@ -121,7 +121,7 @@
 @section('js')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+            @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
             const editButtons = document.querySelectorAll('.btn-edit');
             const formEdit = document.getElementById('formEditSupplier');
             const inputNama = document.getElementById('edit_nama_supplier');

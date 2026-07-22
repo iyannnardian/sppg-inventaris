@@ -306,13 +306,11 @@ return [
             'text' => 'Kategori Barang',
             'url' => 'kategori',
             'icon' => 'fas fa-fw fa-tags',
-            'can' => 'not-kepala-dapur',
         ],
         [
             'text' => 'Satuan',
             'url' => 'satuan',
             'icon' => 'fas fa-fw fa-balance-scale',
-            'can' => 'not-kepala-dapur',
         ],
         [
             'text' => 'Supplier',

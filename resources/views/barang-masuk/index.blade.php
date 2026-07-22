@@ -8,7 +8,7 @@
             <h1 class="m-0 text-dark font-weight-bold" style="font-size: 26px;">Pembelian</h1>
             <p class="text-muted mb-0" style="font-size: 14px;">Transaksi pembelian dari supplier — status Draft / Diterima / Batal</p>
         </div>
-        @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+        @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
             <div class="mt-md-0 mt-3">
                 <button class="btn btn-primary font-weight-bold px-3 py-2 shadow-sm" data-toggle="modal" data-target="#modalTambahPembelian" style="border-radius: 6px;">
                     + Catat Pembelian
@@ -122,7 +122,7 @@
                                             <i class="fas fa-eye mr-1"></i> Detail
                                         </button>
 
-                                        @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+                                        @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
                                             <!-- Tombol Edit (hanya saat status Draft) -->
                                             @if($t->status === 'Draft')
                                                 <button type="button" class="btn btn-primary btn-sm font-weight-bold btn-edit-pembelian mr-1" data-id="{{ $t->id_pembelian }}" title="Edit Faktur Draft">
@@ -174,7 +174,7 @@
         </div>
     </div>
 
-    @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+    @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
         @include('barang-masuk.create')
 
         <!-- MODAL VERIFIKASI & PENERIMAAN BARANG -->

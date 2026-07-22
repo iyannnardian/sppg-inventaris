@@ -8,7 +8,7 @@
             <h1 class="m-0 text-dark font-weight-bold" style="font-size: 26px;"><i class="fas fa-box-open mr-2"></i>Barang</h1>
             <p class="text-muted mb-0" style="font-size: 14px;">Master barang &amp; stok real-time (pembelian diterima – pengeluaran)</p>
         </div>
-        @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+        @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
             <div class="mt-md-0 mt-3">
                 <button class="btn btn-primary font-weight-bold px-3 py-2 shadow-sm" data-toggle="modal" data-target="#modalTambah" style="border-radius: 8px; font-size: 14px;">
                     + Tambah Barang
@@ -83,7 +83,7 @@
                                 <th style="width: 30%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">KATEGORI</th>
                                 <th style="width: 15%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">SATUAN</th>
                                 <th style="width: 10%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="py-3">STOK</th>
-                                @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+                                @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
                                     <th style="width: 10%; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8c8c8c;" class="text-right pr-4 py-3">AKSI</th>
                                 @endif
                             </tr>
@@ -106,7 +106,7 @@
                                 <td>
                                     {{ number_format($b->stok, 0, ',', '.') }}
                                 </td>
-                                @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+                                @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
                                 <td class="text-right pr-4">
                                     <div class="d-flex justify-content-end gap-2">
                                         <button class="btn btn-warning btn-sm text-white btn-edit mr-1" 
@@ -138,7 +138,7 @@
         </div>
     </div>
 
-    @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+    @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
         @include('barang.create')
         @include('barang.edit')
     @endif
@@ -147,7 +147,7 @@
 @section('js')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if(!in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg']))
+            @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
             const editButtons = document.querySelectorAll('.btn-edit');
             const formEdit = document.getElementById('formEditBarang');
             const inputKode = document.getElementById('edit_kode_barang');

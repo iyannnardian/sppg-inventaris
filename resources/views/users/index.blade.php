@@ -92,7 +92,7 @@
                                             data-id="{{ $user->id_user }}"
                                             data-name="{{ $user->name }}"
                                             data-email="{{ $user->email }}"
-                                            data-role="{{ $user->role }}"
+                                            data-role="{{ strtolower($user->role) }}"
                                             data-toggle="modal" 
                                             data-target="#modalEdit"
                                             title="Edit Pengguna">
@@ -137,7 +137,7 @@
                     const id = this.getAttribute('data-id');
                     const name = this.getAttribute('data-name');
                     const email = this.getAttribute('data-email');
-                    const role = this.getAttribute('data-role');
+                    const role = (this.getAttribute('data-role') || '').toLowerCase();
 
                     formEdit.setAttribute('action', `/users/${id}`);
                     editName.value = name;

@@ -37,15 +37,21 @@ class UserController extends Controller
     {
         $this->authorizeAdmin();
 
+        $request->merge([
+            'name' => trim($request->name ?? ''),
+            'email' => strtolower(trim($request->email ?? '')),
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|max:255|unique:users,username',
+            'email' => 'required|email|max:255|unique:users,username',
             'role' => 'required|string',
             'password' => 'required|string|min:8',
         ], [
-            'name.required' => 'Nama wajib diisi.',
-            'email.required' => 'Email / Username wajib diisi.',
-            'email.unique' => 'Email / Username ini sudah digunakan oleh akun lain.',
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format alamat email tidak valid.',
+            'email.unique' => 'Alamat email ini sudah terdaftar untuk pengguna lain.',
             'role.required' => 'Peran wajib dipilih.',
             'password.required' => 'Kata sandi wajib diisi.',
             'password.min' => 'Kata sandi minimal terdiri dari 8 karakter.',
@@ -67,15 +73,21 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
 
+        $request->merge([
+            'name' => trim($request->name ?? ''),
+            'email' => strtolower(trim($request->email ?? '')),
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|max:255|unique:users,username,' . $id . ',id_user',
+            'email' => 'required|email|max:255|unique:users,username,' . $id . ',id_user',
             'role' => 'required|string',
             'password' => 'nullable|string|min:8',
         ], [
-            'name.required' => 'Nama wajib diisi.',
-            'email.required' => 'Email / Username wajib diisi.',
-            'email.unique' => 'Email / Username ini sudah digunakan oleh akun lain.',
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format alamat email tidak valid.',
+            'email.unique' => 'Alamat email ini sudah terdaftar untuk pengguna lain.',
             'role.required' => 'Peran wajib dipilih.',
             'password.min' => 'Kata sandi minimal terdiri dari 8 karakter.',
         ]);

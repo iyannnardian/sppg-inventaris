@@ -39,13 +39,13 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 3. Akun Kepala SPPG
+        // 3. Akun Kepala Dapur
         User::updateOrCreate(
             ['username' => 'kepala@gmail.com'],
             [
-                'nama' => 'Kepala SPPG',
+                'nama' => 'Kepala Dapur',
                 'password' => Hash::make('password'),
-                'role' => 'Kepala SPPG',
+                'role' => 'Kepala Dapur',
             ]
         );
 

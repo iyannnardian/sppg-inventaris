@@ -29,9 +29,14 @@ class KategoriController extends Controller
 
     public function store(Request $request)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk menambah kategori.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
+
+        $request->merge([
+            'kode_kategori' => $request->kode_kategori ? trim($request->kode_kategori) : null,
+            'nama_kategori' => trim($request->nama_kategori ?? ''),
+        ]);
 
         $request->validate([
             'kode_kategori' => 'nullable|string|max:50|unique:kategoris,kode_kategori',
@@ -52,11 +57,16 @@ class KategoriController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk mengubah kategori.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $kategori = Kategori::findOrFail($id);
+
+        $request->merge([
+            'kode_kategori' => $request->kode_kategori ? trim($request->kode_kategori) : null,
+            'nama_kategori' => trim($request->nama_kategori ?? ''),
+        ]);
 
         $request->validate([
             'kode_kategori' => 'nullable|string|max:50|unique:kategoris,kode_kategori,' . $id . ',id_kategori',
@@ -77,8 +87,8 @@ class KategoriController extends Controller
 
     public function destroy($id)
     {
-        if (Auth::user()->role === 'kepala dapur') {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk menghapus kategori.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $kategori = Kategori::findOrFail($id);

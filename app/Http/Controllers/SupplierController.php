@@ -26,18 +26,24 @@ class SupplierController extends Controller
 
     public function store(Request $request)
     {
-        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
+
+        $request->merge([
+            'nama_supplier' => trim($request->nama_supplier ?? ''),
+            'no_telp' => $request->no_telp ? trim($request->no_telp) : null,
+            'alamat' => $request->alamat ? trim($request->alamat) : null,
+        ]);
 
         $request->validate([
             'nama_supplier' => 'required|string|max:255|unique:suppliers,nama_supplier',
-            'no_telp' => 'nullable|string|max:20',
+            'no_telp' => 'nullable|regex:/^[0-9]{11,13}$/',
             'alamat' => 'nullable|string',
         ], [
             'nama_supplier.required' => 'Nama supplier wajib diisi.',
             'nama_supplier.unique' => 'Nama supplier sudah terdaftar.',
-            'no_telp.max' => 'Nomor telepon maksimal 20 karakter.',
+            'no_telp.regex' => 'Nomor telepon harus berupa angka sebanyak 11 hingga 13 digit.',
         ]);
 
         Supplier::create([
@@ -51,20 +57,26 @@ class SupplierController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $supplier = Supplier::findOrFail($id);
 
+        $request->merge([
+            'nama_supplier' => trim($request->nama_supplier ?? ''),
+            'no_telp' => $request->no_telp ? trim($request->no_telp) : null,
+            'alamat' => $request->alamat ? trim($request->alamat) : null,
+        ]);
+
         $request->validate([
             'nama_supplier' => 'required|string|max:255|unique:suppliers,nama_supplier,' . $id . ',id_supplier',
-            'no_telp' => 'nullable|string|max:20',
+            'no_telp' => 'nullable|regex:/^[0-9]{11,13}$/',
             'alamat' => 'nullable|string',
         ], [
             'nama_supplier.required' => 'Nama supplier wajib diisi.',
             'nama_supplier.unique' => 'Nama supplier sudah terdaftar.',
-            'no_telp.max' => 'Nomor telepon maksimal 20 karakter.',
+            'no_telp.regex' => 'Nomor telepon harus berupa angka sebanyak 11 hingga 13 digit.',
         ]);
 
         $supplier->update([
@@ -78,8 +90,8 @@ class SupplierController extends Controller
 
     public function destroy($id)
     {
-        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $supplier = Supplier::findOrFail($id);

@@ -37,13 +37,18 @@ class BarangController extends Controller
 
     public function store(Request $request)
     {
-        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
+
+        $request->merge([
+            'kode_barang' => $request->kode_barang ? trim($request->kode_barang) : null,
+            'nama_barang' => trim($request->nama_barang ?? ''),
+        ]);
 
         $request->validate([
             'kode_barang' => 'nullable|string|max:50|unique:barangs,kode_barang',
-            'nama_barang' => 'required|string|max:255',
+            'nama_barang' => 'required|string|max:255|unique:barangs,nama_barang',
             'id_subkategori' => 'required|exists:sub_kategoris,id_subkategori',
             'id_satuan' => 'required|exists:satuans,id_satuan',
             'stok_minimum' => 'nullable|numeric|min:0',
@@ -51,6 +56,7 @@ class BarangController extends Controller
             'kode_barang.max' => 'Kode barang maksimal 50 karakter.',
             'kode_barang.unique' => 'Kode barang sudah terdaftar.',
             'nama_barang.required' => 'Nama barang wajib diisi.',
+            'nama_barang.unique' => 'Nama barang sudah terdaftar.',
             'id_subkategori.required' => 'Sub-Kategori wajib dipilih.',
             'id_subkategori.exists' => 'Sub-Kategori tidak valid.',
             'id_satuan.required' => 'Satuan barang wajib dipilih.',
@@ -70,15 +76,20 @@ class BarangController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $barang = Barang::findOrFail($id);
 
+        $request->merge([
+            'kode_barang' => $request->kode_barang ? trim($request->kode_barang) : null,
+            'nama_barang' => trim($request->nama_barang ?? ''),
+        ]);
+
         $request->validate([
             'kode_barang' => 'nullable|string|max:50|unique:barangs,kode_barang,' . $id . ',id_barang',
-            'nama_barang' => 'required|string|max:255',
+            'nama_barang' => 'required|string|max:255|unique:barangs,nama_barang,' . $id . ',id_barang',
             'id_subkategori' => 'required|exists:sub_kategoris,id_subkategori',
             'id_satuan' => 'required|exists:satuans,id_satuan',
             'stok_minimum' => 'nullable|numeric|min:0',
@@ -86,6 +97,7 @@ class BarangController extends Controller
             'kode_barang.max' => 'Kode barang maksimal 50 karakter.',
             'kode_barang.unique' => 'Kode barang sudah terdaftar.',
             'nama_barang.required' => 'Nama barang wajib diisi.',
+            'nama_barang.unique' => 'Nama barang sudah terdaftar.',
             'id_subkategori.required' => 'Sub-Kategori wajib dipilih.',
             'id_subkategori.exists' => 'Sub-Kategori tidak valid.',
             'id_satuan.required' => 'Satuan barang wajib dipilih.',
@@ -105,8 +117,8 @@ class BarangController extends Controller
 
     public function destroy($id)
     {
-        if (in_array(strtolower(Auth::user()->role ?? ''), ['kepala dapur', 'kepala sppg'])) {
-            abort(403, 'Akses ditolak. Peran Kepala Dapur / Kepala SPPG tidak memiliki wewenang untuk tindakan ini.');
+        if (strtolower(Auth::user()->role ?? '') === 'kepala dapur') {
+            abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
 
         $barang = Barang::findOrFail($id);

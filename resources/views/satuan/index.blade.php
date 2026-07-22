@@ -8,7 +8,7 @@
             <h1 class="m-0 text-dark"><i class="fas fa-balance-scale mr-2"></i>Kelola Satuan Barang</h1>
             <p class="text-muted mb-0">Kelola daftar unit/satuan pengkuran bahan baku dapur</p>
         </div>
-        @if(Auth::user()->role !== 'kepala dapur')
+        @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
             <button class="btn btn-primary" data-toggle="modal" data-target="#modalTambah"><i class="fas fa-plus-circle mr-1"></i> Tambah Satuan</button>
         @endif
     </div>
@@ -57,7 +57,7 @@
                     <i class="fas fa-balance-scale fa-3x mb-3 text-secondary"></i>
                     <h5>Belum ada data satuan</h5>
                     <p>Silakan tambahkan satuan barang baru untuk mengelompokkan unit barang inventaris.</p>
-                    @if(Auth::user()->role !== 'kepala dapur')
+                    @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
                         <button class="btn btn-primary mt-2" data-toggle="modal" data-target="#modalTambah"><i class="fas fa-plus-circle mr-1"></i> Tambah Satuan Pertama</button>
                     @endif
                 </div>
@@ -69,7 +69,7 @@
                                 <th style="width: 8%">No</th>
                                 <th style="width: 30%">Nama Satuan</th>
                                 <th style="width: 45%">Keterangan</th>
-                                @if(Auth::user()->role !== 'kepala dapur')
+                                @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
                                     <th style="width: 17%" class="text-right">Aksi</th>
                                 @endif
                             </tr>
@@ -84,7 +84,7 @@
                                     </span>
                                 </td>
                                 <td>{{ $s->keterangan ?? '-' }}</td>
-                                @if(Auth::user()->role !== 'kepala dapur')
+                                @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
                                 <td class="text-right">
                                     <div class="d-flex justify-content-end gap-2">
                                         <button class="btn btn-warning btn-sm text-white btn-edit" 
@@ -113,7 +113,7 @@
         </div>
     </div>
 
-    @if(Auth::user()->role !== 'kepala dapur')
+    @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
         @include('satuan.create')
         @include('satuan.edit')
     @endif
@@ -122,7 +122,7 @@
 @section('js')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if(Auth::user()->role !== 'kepala dapur')
+            @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
             const editButtons = document.querySelectorAll('.btn-edit');
             const formEdit = document.getElementById('formEditSatuan');
             const inputNama = document.getElementById('edit_nama_satuan');
