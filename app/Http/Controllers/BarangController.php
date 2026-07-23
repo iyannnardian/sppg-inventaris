@@ -12,14 +12,14 @@ class BarangController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Barang::with(['subKategori.kategori', 'satuan']);
+        $query = Barang::with(['subKategori.kategori', 'satuan'])->orderBy('kode_barang', 'asc');
 
         if ($request->filled('id_subkategori') && $request->id_subkategori != 'all') {
             $query->where('id_subkategori', $request->id_subkategori);
         }
 
         $barangs = $query->get();
-        $subKategoris = SubKategori::with('kategori')->get();
+        $subKategoris = SubKategori::with('kategori')->orderBy('kode_subkategori', 'asc')->get();
         $satuans = Satuan::all();
         
         return view('barang.index', compact('barangs', 'subKategoris', 'satuans'));

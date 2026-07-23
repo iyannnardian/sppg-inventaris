@@ -181,6 +181,22 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
+            // Auto-fill Prefix Kode Sub-Kategori saat pilih Kategori Induk di modal Tambah Sub-Kategori
+            const selectKategoriIndukCreate = document.getElementById('id_kategori');
+            const inputKodeSubCreate = document.getElementById('kode_subkategori');
+
+            if (selectKategoriIndukCreate && inputKodeSubCreate) {
+                selectKategoriIndukCreate.addEventListener('change', function () {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const kodeKat = selectedOption ? selectedOption.getAttribute('data-kode') : null;
+                    if (kodeKat && kodeKat.trim() !== '') {
+                        const prefix = kodeKat.trim() + '.';
+                        inputKodeSubCreate.value = prefix;
+                        inputKodeSubCreate.focus();
+                    }
+                });
+            }
+
             // Script Edit Kategori Utama
             const editUtamaButtons = document.querySelectorAll('.btn-edit-utama');
             const formEditUtama = document.getElementById('formEditKategoriUtama');

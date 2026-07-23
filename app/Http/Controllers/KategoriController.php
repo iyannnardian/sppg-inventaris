@@ -11,8 +11,8 @@ class KategoriController extends Controller
 {
     public function index()
     {
-        $kategoris = Kategori::withCount('subKategoris')->get();
-        $subKategoris = SubKategori::with('kategori')->get();
+        $kategoris = Kategori::withCount('subKategoris')->orderBy('kode_kategori', 'asc')->get();
+        $subKategoris = SubKategori::with('kategori')->orderBy('kode_subkategori', 'asc')->get();
         
         return view('kategori.index', compact('kategoris', 'subKategoris'));
     }

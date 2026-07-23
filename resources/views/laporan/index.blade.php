@@ -61,6 +61,9 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $totalKeseluruhanRupiah = 0;
+                        @endphp
                         @foreach($barangsGrouped as $kategoriUtama => $subKategoris)
                             @php
                                 $katParts = explode(' | ', $kategoriUtama, 2);
@@ -102,6 +105,9 @@
                                 @endif
                                 
                                 @foreach($barangsInSub as $b)
+                                    @php
+                                        $totalKeseluruhanRupiah += $b->jumlah_rupiah;
+                                    @endphp
                                     <tr style="background-color: #ffffff; color: #000000; font-size: 14px;">
                                         <td class="text-left font-weight-normal" style="padding: 10px; border: 1px solid #000000;">
                                             {{ $b->kode_barang ?? '-' }}
@@ -109,16 +115,16 @@
                                         <td class="text-left font-weight-normal" style="padding: 10px; border: 1px solid #000000;">{{ $b->nama_barang }}</td>
                                         <td style="padding: 10px; border: 1px solid #000000;">{{ $b->nama_satuan_text }}</td>
                                         <td style="padding: 10px; border: 1px solid #000000;">
-                                            {{ $b->saldo_awal > 0 ? number_format($b->saldo_awal, 0, '.', ',') : '-' }}
+                                            {{ $b->saldo_awal > 0 ? number_format($b->saldo_awal, 0, ',', '.') : '-' }}
                                         </td>
                                         <td style="padding: 10px; border: 1px solid #000000;">
-                                            {{ $b->masuk > 0 ? number_format($b->masuk, 0, '.', ',') : '-' }}
+                                            {{ $b->masuk > 0 ? number_format($b->masuk, 0, ',', '.') : '-' }}
                                         </td>
                                         <td style="padding: 10px; border: 1px solid #000000;">
-                                            {{ $b->keluar > 0 ? number_format($b->keluar, 0, '.', ',') : '-' }}
+                                            {{ $b->keluar > 0 ? number_format($b->keluar, 0, ',', '.') : '-' }}
                                         </td>
                                         <td style="padding: 10px; border: 1px solid #000000;">
-                                            {{ $b->saldo_akhir > 0 ? number_format($b->saldo_akhir, 0, '.', ',') : '-' }}
+                                            {{ $b->saldo_akhir > 0 ? number_format($b->saldo_akhir, 0, ',', '.') : '-' }}
                                         </td>
                                         <td style="padding: 10px; border: 1px solid #000000;">
                                             {{ $b->harga_beli_akhir > 0 ? 'Rp ' . number_format($b->harga_beli_akhir, 0, ',', '.') : '-' }}
@@ -130,6 +136,21 @@
                                 @endforeach
                             @endforeach
                         @endforeach
+                        
+                        <!-- Baris Total Keseluruhan -->
+                        <tr style="background-color: #ffffff; color: #000000; font-weight: bold; font-size: 14px;">
+                            <td style="padding: 10px; border: 1px solid #000000;">-</td>
+                            <td style="padding: 10px; border: 1px solid #000000;">-</td>
+                            <td style="padding: 10px; border: 1px solid #000000;">-</td>
+                            <td style="padding: 10px; border: 1px solid #000000;">-</td>
+                            <td style="padding: 10px; border: 1px solid #000000;">-</td>
+                            <td style="padding: 10px; border: 1px solid #000000;">-</td>
+                            <td style="padding: 10px; border: 1px solid #000000;">-</td>
+                            <td style="padding: 10px; border: 1px solid #000000; background-color: #f2f2f2;">Jumlah Total</td>
+                            <td style="padding: 10px; border: 1px solid #000000;">
+                                {{ $totalKeseluruhanRupiah > 0 ? 'Rp ' . number_format($totalKeseluruhanRupiah, 0, ',', '.') : '-' }}
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

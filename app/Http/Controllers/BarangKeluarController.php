@@ -20,7 +20,7 @@ class BarangKeluarController extends Controller
 
     public function index(Request $request)
     {
-        $barangs = Barang::with(['satuan', 'subKategori.kategori'])->get();
+        $barangs = Barang::with(['satuan', 'subKategori.kategori'])->orderBy('kode_barang', 'asc')->get();
 
         $tanggalAwal = $request->input('tanggal_awal');
         $tanggalAkhir = $request->input('tanggal_akhir');

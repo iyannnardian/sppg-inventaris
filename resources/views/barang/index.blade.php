@@ -148,6 +148,22 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
+            // Auto-fill Prefix Kode Barang saat pilih Sub-Kategori pada modal Tambah Barang
+            const selectCreateSubKategori = document.getElementById('id_subkategori');
+            const inputCreateKode = document.getElementById('kode_barang');
+
+            if (selectCreateSubKategori && inputCreateKode) {
+                selectCreateSubKategori.addEventListener('change', function () {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const kodeSub = selectedOption ? selectedOption.getAttribute('data-kode') : null;
+                    if (kodeSub && kodeSub.trim() !== '') {
+                        const prefix = kodeSub.trim() + '.';
+                        inputCreateKode.value = prefix;
+                        inputCreateKode.focus();
+                    }
+                });
+            }
+
             const editButtons = document.querySelectorAll('.btn-edit');
             const formEdit = document.getElementById('formEditBarang');
             const inputKode = document.getElementById('edit_kode_barang');

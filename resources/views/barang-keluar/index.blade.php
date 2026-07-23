@@ -5,7 +5,7 @@
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center flex-wrap">
         <div>
-            <h1 class="m-0 text-dark font-weight-bold" style="font-size: 26px;">Pengeluaran Barang</h1>
+            <h1 class="m-0 text-dark font-weight-bold" style="font-size: 26px;"><i class="fas fa-dolly-flatbed mr-2"></i>Pengeluaran Barang</h1>
             <p class="text-muted mb-0" style="font-size: 14px;">Transaksi pengeluaran / pemakaian bahan baku dapur</p>
         </div>
         @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
@@ -149,10 +149,24 @@
                 <option value="" disabled selected>— Pilih barang —</option>
                 @foreach($barangs as $b)
                     <option value="{{ $b->id_barang }}" data-stok="{{ $b->stok }}" data-satuan="{{ $b->satuan->nama_satuan ?? '' }}">
-                        {{ $b->nama_barang }} (Stok: {{ number_format($b->stok, 0, ',', '.') }} {{ $b->satuan->nama_satuan ?? '' }})
+                        {{ $b->nama_barang }}
                     </option>
                 @endforeach
             `;
+
+            // Helper Format Angka Ribuan dengan Titik (.)
+            function formatAngkaDot(val) {
+                if (val === null || val === undefined || val === '') return '';
+                let clean = val.toString().replace(/\D/g, '');
+                if (!clean) return '';
+                return parseInt(clean, 10).toLocaleString('id-ID');
+            }
+
+            function parseRawNumber(val) {
+                if (!val) return 0;
+                let clean = val.toString().replace(/\./g, '').replace(',', '.');
+                return parseFloat(clean) || 0;
+            }
 
             let itemIndex = 1;
 
@@ -165,17 +179,19 @@
                     const tr = document.createElement('tr');
                     tr.className = 'baris-item';
                     tr.innerHTML = `
-                        <td>
+                        <td style="padding: 3px 4px;">
                             <select class="form-control select-barang" name="items[${itemIndex}][id_barang]" required style="border-radius: 8px;">
                                 ${barangOptionsHtml}
                             </select>
-                            <small class="text-muted info-satuan-item d-block mt-1"></small>
                         </td>
-                        <td>
-                            <input type="number" step="any" min="0.01" class="form-control input-qty" name="items[${itemIndex}][qty]" placeholder="0" required style="border-radius: 8px;" inputmode="decimal">
+                        <td class="text-center align-middle" style="padding: 3px 4px;">
+                            <span class="badge badge-light border info-stok-item py-2 px-2 d-block text-center font-weight-normal text-secondary" style="border-radius: 8px; font-size: 13px;">-</span>
+                        </td>
+                        <td style="padding: 3px 4px;">
+                            <input type="text" class="form-control input-qty" name="items[${itemIndex}][qty]" placeholder="1.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                             <small class="text-danger warning-stok-exceeded d-none font-weight-bold mt-1">Stok tidak mencukupi!</small>
                         </td>
-                        <td class="text-center align-middle">
+                        <td class="text-center align-middle" style="padding: 3px 4px;">
                             <button type="button" class="btn btn-link text-muted p-0 btn-hapus-baris" title="Hapus Baris" style="font-size: 16px;">&times;</button>
                         </td>
                     `;
@@ -190,30 +206,25 @@
                 }
             }
 
+            // Unformat titik sebelum submit form Pengeluaran
+            const formTambahPengeluaran = document.getElementById('formTambahPengeluaran');
+            if (formTambahPengeluaran) {
+                formTambahPengeluaran.addEventListener('submit', function () {
+                    this.querySelectorAll('.input-qty').forEach(input => {
+                        input.value = input.value.replace(/\./g, '');
+                    });
+                });
+            }
+
             function bindRowEvents(row) {
                 const selectBarang = row.querySelector('.select-barang');
                 const inputQty = row.querySelector('.input-qty');
-                const infoSatuan = row.querySelector('.info-satuan-item');
+                const infoStok = row.querySelector('.info-stok-item');
                 const warningStok = row.querySelector('.warning-stok-exceeded');
                 const btnHapus = row.querySelector('.btn-hapus-baris');
 
-                // DILARANG MASUKKAN HURUF / Mencegah pengetikan selain angka & desimal
-                inputQty.addEventListener('keydown', function(e) {
-                    if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
-                        (e.keyCode === 65 && e.ctrlKey === true) ||
-                        (e.keyCode >= 35 && e.keyCode <= 40)) {
-                        return;
-                    }
-                    if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
-                        e.preventDefault();
-                    }
-                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                        e.preventDefault();
-                    }
-                });
-
                 inputQty.addEventListener('input', function() {
-                    this.value = this.value.replace(/[^0-9.]/g, '');
+                    this.value = formatAngkaDot(this.value);
                     validasiStokBaris();
                 });
 
@@ -236,15 +247,21 @@
                     if (opt && opt.value !== '') {
                         const stok = parseFloat(opt.getAttribute('data-stok')) || 0;
                         const satuan = opt.getAttribute('data-satuan') || '';
-                        const qty = parseFloat(inputQty.value) || 0;
+                        const qty = parseRawNumber(inputQty.value);
 
-                        infoSatuan.textContent = `Stok tersedia: ${stok} ${satuan}`;
+                        if (infoStok) {
+                            infoStok.textContent = `${stok.toLocaleString('id-ID')} ${satuan}`.trim();
+                        }
 
                         if (qty > stok) {
-                            warningStok.textContent = `Stok tidak cukup! (Stok: ${stok} ${satuan})`;
+                            warningStok.textContent = `Stok tidak cukup! (Stok: ${stok.toLocaleString('id-ID')} ${satuan})`;
                             warningStok.classList.remove('d-none');
                         } else {
                             warningStok.classList.add('d-none');
+                        }
+                    } else {
+                        if (infoStok) {
+                            infoStok.textContent = '-';
                         }
                     }
                     checkAllStokValid();
@@ -262,7 +279,7 @@
                     const opt = select.options[select.selectedIndex];
                     if (opt && opt.value !== '') {
                         const stok = parseFloat(opt.getAttribute('data-stok')) || 0;
-                        const qty = parseFloat(input.value) || 0;
+                        const qty = parseRawNumber(input.value);
                         if (qty > stok || qty <= 0) {
                             isValid = false;
                         }
@@ -332,22 +349,24 @@
             function tambahBarisEdit(selectedBarangId = '', qty = '') {
                 if (!editContainerBaris) return;
 
-                const valQty = (qty !== '' && qty !== null && qty !== undefined) ? parseFloat(qty) : '';
+                const valQty = (qty !== '' && qty !== null && qty !== undefined) ? formatAngkaDot(qty) : '';
 
                 const tr = document.createElement('tr');
                 tr.className = 'edit-baris-item';
                 tr.innerHTML = `
-                    <td>
+                    <td style="padding: 3px 4px;">
                         <select class="form-control edit-select-barang" name="items[${editItemIndex}][id_barang]" required style="border-radius: 8px;">
                             ${barangOptionsHtml}
                         </select>
-                        <small class="text-muted edit-info-satuan-item d-block mt-1"></small>
                     </td>
-                    <td>
-                        <input type="number" step="any" min="0.01" class="form-control edit-input-qty" name="items[${editItemIndex}][qty]" value="${valQty}" placeholder="0" required style="border-radius: 8px;" inputmode="decimal">
+                    <td class="text-center align-middle" style="padding: 3px 4px;">
+                        <span class="badge badge-light border edit-info-stok-item py-2 px-2 d-block text-center font-weight-normal text-secondary" style="border-radius: 8px; font-size: 13px;">-</span>
+                    </td>
+                    <td style="padding: 3px 4px;">
+                        <input type="text" class="form-control edit-input-qty" name="items[${editItemIndex}][qty]" value="${valQty}" placeholder="1.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                         <small class="text-danger edit-warning-stok-exceeded d-none font-weight-bold mt-1">Stok tidak mencukupi!</small>
                     </td>
-                    <td class="text-center align-middle">
+                    <td class="text-center align-middle" style="padding: 3px 4px;">
                         <button type="button" class="btn btn-link text-muted p-0 edit-btn-hapus-baris" title="Hapus Baris" style="font-size: 16px;">&times;</button>
                     </td>
                 `;
@@ -362,29 +381,24 @@
                 editItemIndex++;
             }
 
+            const formEditPengeluaran = document.getElementById('formEditPengeluaran');
+            if (formEditPengeluaran) {
+                formEditPengeluaran.addEventListener('submit', function () {
+                    this.querySelectorAll('.edit-input-qty').forEach(input => {
+                        input.value = input.value.replace(/\./g, '');
+                    });
+                });
+            }
+
             function bindEditRowEvents(row) {
                 const selectBarang = row.querySelector('.edit-select-barang');
                 const inputQty = row.querySelector('.edit-input-qty');
-                const infoSatuan = row.querySelector('.edit-info-satuan-item');
+                const infoStok = row.querySelector('.edit-info-stok-item');
                 const warningStok = row.querySelector('.edit-warning-stok-exceeded');
                 const btnHapus = row.querySelector('.edit-btn-hapus-baris');
 
-                inputQty.addEventListener('keydown', function(e) {
-                    if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
-                        (e.keyCode === 65 && e.ctrlKey === true) ||
-                        (e.keyCode >= 35 && e.keyCode <= 40)) {
-                        return;
-                    }
-                    if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
-                        e.preventDefault();
-                    }
-                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                        e.preventDefault();
-                    }
-                });
-
                 inputQty.addEventListener('input', function() {
-                    this.value = this.value.replace(/[^0-9.]/g, '');
+                    this.value = formatAngkaDot(this.value);
                     validasiEditStokBaris();
                 });
 
@@ -408,18 +422,24 @@
                         const barangId = opt.value;
                         const originalStok = parseFloat(opt.getAttribute('data-stok')) || 0;
                         const satuan = opt.getAttribute('data-satuan') || '';
-                        const qty = parseFloat(inputQty.value) || 0;
+                        const qty = parseRawNumber(inputQty.value);
 
                         const returnQty = editCurrentDetails[barangId] || 0;
                         const availableStok = originalStok + returnQty;
 
-                        infoSatuan.textContent = `Stok tersedia: ${availableStok} ${satuan}`;
+                        if (infoStok) {
+                            infoStok.textContent = `${availableStok.toLocaleString('id-ID')} ${satuan}`.trim();
+                        }
 
                         if (qty > availableStok) {
-                            warningStok.textContent = `Stok tidak cukup! (Stok tersedia: ${availableStok} ${satuan})`;
+                            warningStok.textContent = `Stok tidak cukup! (Stok tersedia: ${availableStok.toLocaleString('id-ID')} ${satuan})`;
                             warningStok.classList.remove('d-none');
                         } else {
                             warningStok.classList.add('d-none');
+                        }
+                    } else {
+                        if (infoStok) {
+                            infoStok.textContent = '-';
                         }
                     }
                     checkAllEditStokValid();
@@ -440,7 +460,7 @@
                     if (opt && opt.value !== '') {
                         const barangId = opt.value;
                         const originalStok = parseFloat(opt.getAttribute('data-stok')) || 0;
-                        const qty = parseFloat(input.value) || 0;
+                        const qty = parseRawNumber(input.value);
                         const returnQty = editCurrentDetails[barangId] || 0;
                         const availableStok = originalStok + returnQty;
 

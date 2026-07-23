@@ -11,21 +11,25 @@
             <form action="{{ route('sub-kategori.store') }}" method="POST">
                 @csrf
                 <div class="modal-body px-4 pt-3 pb-2">
-                    <div class="form-group mb-3">
-                        <label for="id_kategori" class="small font-weight-bold text-secondary">Kategori Induk <span class="text-danger">*</span></label>
-                        <select class="form-control form-control-lg bg-light border-0" id="id_kategori" name="id_kategori" required style="border-radius: 8px; font-size: 14px;">
-                            <option value="" disabled selected>— Pilih Kategori Utama —</option>
-                            @foreach($kategoris as $k)
-                                <option value="{{ $k->id_kategori }}">{{ $k->nama_kategori }}</option>
-                            @endforeach
-                        </select>
-                    </div>
                     <div class="row">
+                        <div class="col-md-6 form-group mb-3">
+                            <label for="id_kategori" class="small font-weight-bold text-secondary">Kategori Induk <span class="text-danger">*</span></label>
+                            <select class="form-control form-control-lg bg-light border-0" id="id_kategori" name="id_kategori" required style="border-radius: 8px; font-size: 14px;">
+                                <option value="" disabled selected>— Pilih Kategori Utama —</option>
+                                @foreach($kategoris as $k)
+                                    <option value="{{ $k->id_kategori }}" data-kode="{{ $k->kode_kategori }}">
+                                        {{ $k->nama_kategori }}{{ $k->kode_kategori ? ' ('.$k->kode_kategori.')' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="col-md-6 form-group mb-3">
                             <label for="kode_subkategori" class="small font-weight-bold text-secondary">Kode Sub-Kategori</label>
                             <input type="text" class="form-control form-control-lg bg-light border-0" id="kode_subkategori" name="kode_subkategori" placeholder="Contoh: KH.01" autocomplete="off" style="border-radius: 8px; font-size: 14px;">
                         </div>
-                        <div class="col-md-6 form-group mb-3">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 form-group mb-3">
                             <label for="nama_subkategori" class="small font-weight-bold text-secondary">Nama Sub-Kategori <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-lg bg-light border-0" id="nama_subkategori" name="nama_subkategori" placeholder="Contoh: OLAHAN PADI" required autocomplete="off" style="border-radius: 8px; font-size: 14px;">
                         </div>

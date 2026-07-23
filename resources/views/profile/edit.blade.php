@@ -179,7 +179,7 @@
                                             <span class="input-group-text"><i class="fas fa-key"></i></span>
                                         </div>
                                         <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                               id="password" name="password" placeholder="Minimal 6 karakter">
+                                               id="password" name="password" placeholder="Minimal 8 karakter">
                                     </div>
                                     @error('password')
                                         <span class="invalid-feedback d-block">{{ $message }}</span>

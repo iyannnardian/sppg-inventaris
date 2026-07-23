@@ -21,34 +21,36 @@
                     <label class="font-weight-bold text-secondary mt-2 mb-2" style="font-size: 13px;">Rincian Barang Keluar (Pengeluaran_Detail)</label>
                     
                     <div class="table-responsive">
-                        <table class="table table-borderless align-middle mb-2">
+                        <table class="table table-borderless table-sm align-middle mb-2">
                             <thead style="background-color: #fafafa; border-bottom: 1px solid #f0f0f0;">
                                 <tr>
-                                    <th style="width: 60%; font-size: 11px; text-transform: uppercase; color: #8c8c8c;">BARANG (STOK TERSEDIA)</th>
-                                    <th style="width: 35%; font-size: 11px; text-transform: uppercase; color: #8c8c8c;">QTY (JUMLAH KELUAR)</th>
-                                    <th style="width: 5%"></th>
+                                    <th style="width: 42%; font-size: 11px; text-transform: uppercase; color: #8c8c8c; padding: 6px 5px;">BARANG</th>
+                                    <th style="width: 20%; font-size: 11px; text-transform: uppercase; color: #8c8c8c; padding: 6px 5px;" class="text-center">STOK TERSEDIA</th>
+                                    <th style="width: 33%; font-size: 11px; text-transform: uppercase; color: #8c8c8c; padding: 6px 5px;">QTY (JUMLAH KELUAR)</th>
+                                    <th style="width: 5%; padding: 6px 5px;"></th>
                                 </tr>
                             </thead>
                             <tbody id="containerBarisItem">
                                 <!-- Baris Pertama Default -->
                                 <tr class="baris-item">
-                                    <td>
+                                    <td style="padding: 3px 4px;">
                                         <select class="form-control select-barang" name="items[0][id_barang]" required style="border-radius: 8px;">
                                             <option value="" disabled selected>— Pilih barang —</option>
                                             @foreach($barangs as $b)
                                                 <option value="{{ $b->id_barang }}" data-stok="{{ $b->stok }}" data-satuan="{{ $b->satuan->nama_satuan ?? '' }}">
-                                                    {{ $b->nama_barang }} (Stok: {{ number_format($b->stok, 0, ',', '.') }} {{ $b->satuan->nama_satuan ?? '' }})
+                                                    {{ $b->nama_barang }}
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <small class="text-muted info-satuan-item d-block mt-1"></small>
                                     </td>
-                                    <td>
-                                        <!-- HANYA ANGKA: inputmode numeric & JavaScript replace non-digit -->
-                                        <input type="number" step="any" min="0.01" class="form-control input-qty" name="items[0][qty]" placeholder="0" required style="border-radius: 8px;" inputmode="decimal">
+                                    <td class="text-center align-middle" style="padding: 3px 4px;">
+                                        <span class="badge badge-light border info-stok-item py-2 px-2 d-block text-center font-weight-normal text-secondary" style="border-radius: 8px; font-size: 13px;">-</span>
+                                    </td>
+                                    <td style="padding: 3px 4px;">
+                                        <input type="text" class="form-control input-qty" name="items[0][qty]" placeholder="1.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                                         <small class="text-danger warning-stok-exceeded d-none font-weight-bold mt-1">Stok tidak mencukupi!</small>
                                     </td>
-                                    <td class="text-center align-middle">
+                                    <td class="text-center align-middle" style="padding: 3px 4px;">
                                         <button type="button" class="btn btn-link text-muted p-0 btn-hapus-baris" title="Hapus Baris" style="font-size: 16px;">&times;</button>
                                     </td>
                                 </tr>

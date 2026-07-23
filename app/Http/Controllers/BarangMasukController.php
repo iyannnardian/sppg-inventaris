@@ -34,7 +34,7 @@ class BarangMasukController extends Controller
         }
 
         $suppliers = Supplier::all();
-        $barangs = Barang::with(['satuan', 'subKategori.kategori'])->get();
+        $barangs = Barang::with(['satuan', 'subKategori.kategori'])->orderBy('kode_barang', 'asc')->get();
 
         $tanggalAwal = $request->input('tanggal_awal');
         $tanggalAkhir = $request->input('tanggal_akhir');

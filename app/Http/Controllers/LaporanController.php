@@ -66,6 +66,8 @@ class LaporanController extends Controller
         echo '<th style="padding: 10px; width: 160px; background-color: #9bc2e6; border: 1px solid #000000; font-size: 13px;">Jumlah</th>';
         echo '</tr>';
 
+        $totalKeseluruhanRupiah = 0;
+
         foreach ($barangsGrouped as $kategoriUtama => $subKategoris) {
             $katParts = explode(' | ', $kategoriUtama, 2);
             $katKode = count($katParts) == 2 ? $katParts[0] : '';
@@ -103,10 +105,12 @@ class LaporanController extends Controller
                 }
 
                 foreach ($barangsInSub as $b) {
-                    $saldoAwalVal = $b->saldo_awal > 0 ? number_format($b->saldo_awal, 0, '.', ',') : '-';
-                    $masukVal = $b->masuk > 0 ? number_format($b->masuk, 0, '.', ',') : '-';
-                    $keluarVal = $b->keluar > 0 ? number_format($b->keluar, 0, '.', ',') : '-';
-                    $saldoAkhirVal = $b->saldo_akhir > 0 ? number_format($b->saldo_akhir, 0, '.', ',') : '-';
+                    $totalKeseluruhanRupiah += $b->jumlah_rupiah;
+                    
+                    $saldoAwalVal = $b->saldo_awal > 0 ? number_format($b->saldo_awal, 0, ',', '.') : '-';
+                    $masukVal = $b->masuk > 0 ? number_format($b->masuk, 0, ',', '.') : '-';
+                    $keluarVal = $b->keluar > 0 ? number_format($b->keluar, 0, ',', '.') : '-';
+                    $saldoAkhirVal = $b->saldo_akhir > 0 ? number_format($b->saldo_akhir, 0, ',', '.') : '-';
                     $hargaBeliAkhirVal = $b->harga_beli_akhir > 0 ? 'Rp ' . number_format($b->harga_beli_akhir, 0, ',', '.') : '-';
                     $jumlahRupiahVal = $b->jumlah_rupiah > 0 ? 'Rp ' . number_format($b->jumlah_rupiah, 0, ',', '.') : '-';
 
@@ -125,6 +129,18 @@ class LaporanController extends Controller
             }
         }
 
+        echo '<tr style="background-color: #ffffff; color: #000000; font-weight: bold; font-family: Arial; font-size: 11px;">';
+        echo '<td style="text-align: center; padding: 6px; border: 1px solid #000000;">-</td>';
+        echo '<td style="text-align: center; padding: 6px; border: 1px solid #000000;">-</td>';
+        echo '<td style="text-align: center; padding: 6px; border: 1px solid #000000;">-</td>';
+        echo '<td style="text-align: center; padding: 6px; border: 1px solid #000000;">-</td>';
+        echo '<td style="text-align: center; padding: 6px; border: 1px solid #000000;">-</td>';
+        echo '<td style="text-align: center; padding: 6px; border: 1px solid #000000;">-</td>';
+        echo '<td style="text-align: center; padding: 6px; border: 1px solid #000000;">-</td>';
+        echo '<td style="text-align: center; padding: 6px; border: 1px solid #000000; background-color: #f2f2f2;">Jumlah Total</td>';
+        echo '<td style="text-align: center; padding: 6px; border: 1px solid #000000;">' . ($totalKeseluruhanRupiah > 0 ? 'Rp ' . number_format($totalKeseluruhanRupiah, 0, ',', '.') : '-') . '</td>';
+        echo '</tr>';
+
         echo '</table>';
         exit;
     }
@@ -134,7 +150,15 @@ class LaporanController extends Controller
         $tglAwalStr = $tanggalAwal->format('Y-m-d');
         $tglAkhirStr = $tanggalAkhir->format('Y-m-d');
 
-        $barangs = Barang::with(['subKategori.kategori', 'satuan'])->get()->map(function ($barang) use ($tglAwalStr, $tglAkhirStr) {
+        $barangs = Barang::with(['subKategori.kategori', 'satuan'])
+            ->get()
+            ->sortBy(function ($b) {
+                $katKode = $b->subKategori->kategori->kode_kategori ?? 'ZZZ';
+                $subKode = $b->subKategori->kode_subkategori ?? 'ZZZ';
+                $brgKode = $b->kode_barang ?? 'ZZZ';
+                return sprintf('%s_%s_%s', $katKode, $subKode, $brgKode);
+            })
+            ->map(function ($barang) use ($tglAwalStr, $tglAkhirStr) {
             // Purchases (Barang Masuk with status Diterima)
             $masuk = PembelianDetail::where('id_barang', $barang->id_barang)
                 ->whereHas('pembelian', function ($q) use ($tglAwalStr, $tglAkhirStr) {
@@ -190,14 +214,14 @@ class LaporanController extends Controller
                 return ($kat->kode_kategori ? $kat->kode_kategori . ' | ' : '') . $kat->nama_kategori;
             }
             return 'BAHAN BAKU LAINNYA';
-        })->map(function ($group) {
+        })->sortKeys()->map(function ($group) {
             return $group->groupBy(function ($barang) {
                 $sub = $barang->subKategori ?? null;
                 if ($sub) {
                     return ($sub->kode_subkategori ? $sub->kode_subkategori . ' | ' : '') . $sub->nama_subkategori;
                 }
                 return 'TANPA SUB KATEGORI';
-            });
+            })->sortKeys();
         });
     }
 }

@@ -5,7 +5,7 @@
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center flex-wrap">
         <div>
-            <h1 class="m-0 text-dark font-weight-bold" style="font-size: 26px;">Pembelian</h1>
+            <h1 class="m-0 text-dark font-weight-bold" style="font-size: 26px;"><i class="fas fa-cart-plus mr-2"></i>Pembelian</h1>
             <p class="text-muted mb-0" style="font-size: 14px;">Transaksi pembelian dari supplier — status Draft / Diterima / Batal</p>
         </div>
         @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
@@ -261,6 +261,20 @@
 
             let itemIndex = 1;
 
+            // Helper Format Angka Ribuan dengan Titik (.)
+            function formatAngkaDot(val) {
+                if (val === null || val === undefined || val === '') return '';
+                let clean = val.toString().replace(/\D/g, '');
+                if (!clean) return '';
+                return parseInt(clean, 10).toLocaleString('id-ID');
+            }
+
+            function parseRawNumber(val) {
+                if (!val) return 0;
+                let clean = val.toString().replace(/\./g, '').replace(',', '.');
+                return parseFloat(clean) || 0;
+            }
+
             const btnTambahBaris = document.getElementById('btnTambahBarisItem');
             const containerBaris = document.getElementById('containerBarisItem');
 
@@ -269,22 +283,24 @@
                     const tr = document.createElement('tr');
                     tr.className = 'baris-item';
                     tr.innerHTML = `
-                        <td>
+                        <td style="padding: 3px 4px;">
                             <select class="form-control select-barang" name="items[${itemIndex}][id_barang]" required style="border-radius: 8px;">
                                 ${barangOptionsHtml}
                             </select>
-                            <small class="text-muted info-satuan-item d-block mt-1"></small>
                         </td>
-                        <td>
-                            <input type="number" step="any" min="1" class="form-control input-qty" name="items[${itemIndex}][qty]" placeholder="0" required style="border-radius: 8px;" inputmode="decimal">
+                        <td class="text-center align-middle" style="padding: 3px 4px;">
+                            <span class="badge badge-light border info-satuan-item py-2 px-2 d-block text-center font-weight-normal text-secondary" style="border-radius: 8px; font-size: 13px;">-</span>
                         </td>
-                        <td>
-                            <input type="number" step="1" min="0" class="form-control input-harga" name="items[${itemIndex}][harga]" placeholder="0" required style="border-radius: 8px;" inputmode="numeric">
+                        <td style="padding: 3px 4px;">
+                            <input type="text" class="form-control input-qty" name="items[${itemIndex}][qty]" placeholder="1.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                         </td>
-                        <td class="text-right align-middle">
+                        <td style="padding: 3px 4px;">
+                            <input type="text" class="form-control input-harga" name="items[${itemIndex}][harga]" placeholder="12.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
+                        </td>
+                        <td class="text-right align-middle" style="padding: 3px 4px;">
                             <span class="font-weight-bold text-dark input-subtotal-text">Rp 0</span>
                         </td>
-                        <td class="text-center align-middle">
+                        <td class="text-center align-middle" style="padding: 3px 4px;">
                             <button type="button" class="btn btn-link text-muted p-0 btn-hapus-baris" title="Hapus Baris" style="font-size: 16px;">&times;</button>
                         </td>
                     `;
@@ -300,6 +316,16 @@
                 }
             }
 
+            // Unformat titik sebelum submit form Tambah Pembelian
+            const formTambahPembelian = document.getElementById('formTambahPembelian');
+            if (formTambahPembelian) {
+                formTambahPembelian.addEventListener('submit', function () {
+                    this.querySelectorAll('.input-qty, .input-harga').forEach(input => {
+                        input.value = input.value.replace(/\./g, '');
+                    });
+                });
+            }
+
             function bindRowEvents(row) {
                 const selectBarang = row.querySelector('.select-barang');
                 const inputQty = row.querySelector('.input-qty');
@@ -308,28 +334,10 @@
                 const btnHapus = row.querySelector('.btn-hapus-baris');
                 const infoSatuan = row.querySelector('.info-satuan-item');
 
-                // DILARANG MASUKKAN HURUF / Mencegah pengetikan selain angka & desimal
+                // Auto Format Ribuan dengan Titik (.) saat mengetik
                 [inputQty, inputHarga].forEach(input => {
-                    input.addEventListener('keydown', function(e) {
-                        if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
-                            (e.keyCode === 65 && e.ctrlKey === true) ||
-                            (e.keyCode >= 35 && e.keyCode <= 40)) {
-                            return;
-                        }
-                        if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
-                            e.preventDefault();
-                        }
-                        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                            e.preventDefault();
-                        }
-                    });
-
                     input.addEventListener('input', function() {
-                        if (input.classList.contains('input-harga')) {
-                            this.value = this.value.replace(/[^0-9]/g, '');
-                        } else {
-                            this.value = this.value.replace(/[^0-9.]/g, '');
-                        }
+                        this.value = formatAngkaDot(this.value);
                         hitungSubtotal();
                     });
                 });
@@ -338,7 +346,9 @@
                     const opt = this.options[this.selectedIndex];
                     if (opt && opt.value !== '') {
                         const satuan = opt.getAttribute('data-satuan') || '';
-                        infoSatuan.textContent = satuan ? `Satuan: ${satuan}` : '';
+                        infoSatuan.textContent = satuan ? satuan : '-';
+                    } else {
+                        infoSatuan.textContent = '-';
                     }
                     hitungSubtotal();
                 });
@@ -354,8 +364,8 @@
                 });
 
                 function hitungSubtotal() {
-                    const qty = parseFloat(inputQty.value) || 0;
-                    const harga = parseFloat(inputHarga.value) || 0;
+                    const qty = parseRawNumber(inputQty.value);
+                    const harga = parseRawNumber(inputHarga.value);
                     const subtotal = qty * harga;
                     if (inputSubtotalText) {
                         inputSubtotalText.textContent = 'Rp ' + subtotal.toLocaleString('id-ID');
@@ -368,8 +378,8 @@
                 let grandTotal = 0;
                 const rows = containerBaris.querySelectorAll('.baris-item');
                 rows.forEach(row => {
-                    const qty = parseFloat(row.querySelector('.input-qty').value) || 0;
-                    const harga = parseFloat(row.querySelector('.input-harga').value) || 0;
+                    const qty = parseRawNumber(row.querySelector('.input-qty').value);
+                    const harga = parseRawNumber(row.querySelector('.input-harga').value);
                     grandTotal += (qty * harga);
                 });
                 const grandTotalElem = document.getElementById('grandTotalBelanja');
@@ -532,28 +542,30 @@
             function tambahBarisEdit(selectedBarangId = '', qty = '', harga = '') {
                 if (!editContainerBaris) return;
 
-                const valQty = (qty !== '' && qty !== null && qty !== undefined) ? parseFloat(qty) : '';
-                const valHarga = (harga !== '' && harga !== null && harga !== undefined) ? parseFloat(harga) : '';
+                const valQty = (qty !== '' && qty !== null && qty !== undefined) ? formatAngkaDot(qty) : '';
+                const valHarga = (harga !== '' && harga !== null && harga !== undefined) ? formatAngkaDot(harga) : '';
 
                 const tr = document.createElement('tr');
                 tr.className = 'edit-baris-item';
                 tr.innerHTML = `
-                    <td>
+                    <td style="padding: 3px 4px;">
                         <select class="form-control edit-select-barang" name="items[${editItemIndex}][id_barang]" required style="border-radius: 8px;">
                             ${barangOptionsHtml}
                         </select>
-                        <small class="text-muted edit-info-satuan-item d-block mt-1"></small>
                     </td>
-                    <td>
-                        <input type="number" step="any" min="0.01" class="form-control edit-input-qty" name="items[${editItemIndex}][qty]" value="${valQty}" placeholder="0" required style="border-radius: 8px;" inputmode="decimal">
+                    <td class="text-center align-middle" style="padding: 3px 4px;">
+                        <span class="badge badge-light border edit-info-satuan-item py-2 px-2 d-block text-center font-weight-normal text-secondary" style="border-radius: 8px; font-size: 13px;">-</span>
                     </td>
-                    <td>
-                        <input type="number" step="1" min="0" class="form-control edit-input-harga" name="items[${editItemIndex}][harga]" value="${valHarga}" placeholder="0" required style="border-radius: 8px;" inputmode="numeric">
+                    <td style="padding: 3px 4px;">
+                        <input type="text" class="form-control edit-input-qty" name="items[${editItemIndex}][qty]" value="${valQty}" placeholder="1.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                     </td>
-                    <td class="text-right align-middle">
+                    <td style="padding: 3px 4px;">
+                        <input type="text" class="form-control edit-input-harga" name="items[${editItemIndex}][harga]" value="${valHarga}" placeholder="12.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
+                    </td>
+                    <td class="text-right align-middle" style="padding: 3px 4px;">
                         <span class="font-weight-bold text-dark edit-input-subtotal-text">Rp 0</span>
                     </td>
-                    <td class="text-center align-middle">
+                    <td class="text-center align-middle" style="padding: 3px 4px;">
                         <button type="button" class="btn btn-link text-muted p-0 edit-btn-hapus-baris" title="Hapus Baris" style="font-size: 16px;">&times;</button>
                     </td>
                 `;
@@ -568,6 +580,15 @@
                 editItemIndex++;
             }
 
+            const formEditPembelian = document.getElementById('formEditPembelian');
+            if (formEditPembelian) {
+                formEditPembelian.addEventListener('submit', function () {
+                    this.querySelectorAll('.edit-input-qty, .edit-input-harga').forEach(input => {
+                        input.value = input.value.replace(/\./g, '');
+                    });
+                });
+            }
+
             function bindEditRowEvents(row) {
                 const selectBarang = row.querySelector('.edit-select-barang');
                 const inputQty = row.querySelector('.edit-input-qty');
@@ -577,26 +598,8 @@
                 const infoSatuan = row.querySelector('.edit-info-satuan-item');
 
                 [inputQty, inputHarga].forEach(input => {
-                    input.addEventListener('keydown', function(e) {
-                        if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
-                            (e.keyCode === 65 && e.ctrlKey === true) ||
-                            (e.keyCode >= 35 && e.keyCode <= 40)) {
-                            return;
-                        }
-                        if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
-                            e.preventDefault();
-                        }
-                        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                            e.preventDefault();
-                        }
-                    });
-
                     input.addEventListener('input', function() {
-                        if (input.classList.contains('edit-input-harga')) {
-                            this.value = this.value.replace(/[^0-9]/g, '');
-                        } else {
-                            this.value = this.value.replace(/[^0-9.]/g, '');
-                        }
+                        this.value = formatAngkaDot(this.value);
                         hitungEditSubtotal();
                     });
                 });
@@ -605,7 +608,9 @@
                     const opt = this.options[this.selectedIndex];
                     if (opt && opt.value !== '') {
                         const satuan = opt.getAttribute('data-satuan') || '';
-                        infoSatuan.textContent = satuan ? `Satuan: ${satuan}` : '';
+                        infoSatuan.textContent = satuan ? satuan : '-';
+                    } else {
+                        infoSatuan.textContent = '-';
                     }
                     hitungEditSubtotal();
                 });
@@ -614,7 +619,7 @@
                     const opt = selectBarang.options[selectBarang.selectedIndex];
                     if (opt && opt.value !== '') {
                         const satuan = opt.getAttribute('data-satuan') || '';
-                        infoSatuan.textContent = satuan ? `Satuan: ${satuan}` : '';
+                        infoSatuan.textContent = satuan ? satuan : '-';
                     }
                 }
 
@@ -629,8 +634,8 @@
                 });
 
                 function hitungEditSubtotal() {
-                    const qty = parseFloat(inputQty.value) || 0;
-                    const harga = parseFloat(inputHarga.value) || 0;
+                    const qty = parseRawNumber(inputQty.value);
+                    const harga = parseRawNumber(inputHarga.value);
                     const subtotal = qty * harga;
                     if (inputSubtotalText) {
                         inputSubtotalText.textContent = 'Rp ' + subtotal.toLocaleString('id-ID');
@@ -646,8 +651,8 @@
                 let grandTotal = 0;
                 const rows = editContainerBaris.querySelectorAll('.edit-baris-item');
                 rows.forEach(row => {
-                    const qty = parseFloat(row.querySelector('.edit-input-qty').value) || 0;
-                    const harga = parseFloat(row.querySelector('.edit-input-harga').value) || 0;
+                    const qty = parseRawNumber(row.querySelector('.edit-input-qty').value);
+                    const harga = parseRawNumber(row.querySelector('.edit-input-harga').value);
                     grandTotal += (qty * harga);
                 });
                 const grandTotalElem = document.getElementById('editGrandTotalBelanja');

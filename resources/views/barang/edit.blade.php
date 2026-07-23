@@ -14,25 +14,26 @@
                 <div class="modal-body px-4 pt-3 pb-2">
                     <div class="row">
                         <div class="col-md-6 form-group mb-3">
-                            <label for="edit_kode_barang" class="small font-weight-bold text-secondary">Kode Barang (unik)</label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_kode_barang" name="kode_barang" placeholder="BR-0005" autocomplete="off" style="border-radius: 8px; font-size: 14px;">
+                            <label for="edit_id_subkategori" class="small font-weight-bold text-secondary">Sub-Kategori 
+                                 <span class="text-danger">*</span></label>
+                            <select class="form-control form-control-lg bg-light border-0" id="edit_id_subkategori" name="id_subkategori" required style="border-radius: 8px; font-size: 14px;">
+                                <option value="" disabled selected>— Pilih Sub-Kategori —</option>
+                                @foreach($subKategoris as $sub)
+                                    <option value="{{ $sub->id_subkategori }}" data-kode="{{ $sub->kode_subkategori }}">
+                                        {{ $sub->kategori ? $sub->kategori->nama_kategori . ' / ' : '' }}{{ $sub->nama_subkategori }}{{ $sub->kode_subkategori ? ' ('.$sub->kode_subkategori.')' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-6 form-group mb-3">
-                            <label for="edit_nama_barang" class="small font-weight-bold text-secondary">Nama Barang <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_nama_barang" name="nama_barang" placeholder="Minyak Goreng" required autocomplete="off" style="border-radius: 8px; font-size: 14px;">
+                            <label for="edit_kode_barang" class="small font-weight-bold text-secondary">Kode Barang (unik)<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_kode_barang" name="kode_barang" placeholder="PH.01.001" autocomplete="off" style="border-radius: 8px; font-size: 14px;">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 form-group mb-3">
-                            <label for="edit_id_subkategori" class="small font-weight-bold text-secondary">Sub-Kategori (Tabel: SUB_KATEGORI) <span class="text-danger">*</span></label>
-                            <select class="form-control form-control-lg bg-light border-0" id="edit_id_subkategori" name="id_subkategori" required style="border-radius: 8px; font-size: 14px;">
-                                <option value="" disabled selected>— Pilih Sub-Kategori —</option>
-                                @foreach($subKategoris as $sub)
-                                    <option value="{{ $sub->id_subkategori }}">
-                                        {{ $sub->kategori ? $sub->kategori->nama_kategori . ' / ' : '' }}{{ $sub->nama_subkategori }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label for="edit_nama_barang" class="small font-weight-bold text-secondary">Nama Barang <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_nama_barang" name="nama_barang" placeholder="Minyak Goreng" required autocomplete="off" style="border-radius: 8px; font-size: 14px;">
                         </div>
                         <div class="col-md-6 form-group mb-3">
                             <label for="edit_id_satuan" class="small font-weight-bold text-secondary">Satuan <span class="text-danger">*</span></label>
