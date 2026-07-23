@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use HasFactory, Notifiable;
 
     protected $table = 'users';
     protected $primaryKey = 'id_user';
@@ -16,7 +17,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'nama',
-        'username',
+        'email',
         'password',
         'role',
     ];
@@ -32,13 +33,5 @@ class User extends Authenticatable
     public function getNameAttribute()
     {
         return $this->nama;
-    }
-
-    /**
-     * Get email attribute for compatibility.
-     */
-    public function getEmailAttribute()
-    {
-        return $this->username;
     }
 }

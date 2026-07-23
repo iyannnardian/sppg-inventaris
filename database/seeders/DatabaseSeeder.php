@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         //
 
         User::updateOrCreate(
-            ['username' => 'admin@gmail.com'],
+            ['email' => 'admin@gmail.com'],
             [
                 'nama' => 'Siti Rahma (Admin)',
                 'password' => Hash::make('password'),
@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
 
         // 2. Akun Ahli Gizi
         User::updateOrCreate(
-            ['username' => 'gizi@gmail.com'],
+            ['email' => 'gizi@gmail.com'],
             [
                 'nama' => 'Ahli Gizi SPPG',
                 'password' => Hash::make('password'),
@@ -41,7 +41,7 @@ class DatabaseSeeder extends Seeder
 
         // 3. Akun Kepala Dapur
         User::updateOrCreate(
-            ['username' => 'kepala@gmail.com'],
+            ['email' => 'kepala@gmail.com'],
             [
                 'nama' => 'Kepala Dapur',
                 'password' => Hash::make('password'),

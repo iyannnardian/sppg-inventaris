@@ -218,21 +218,21 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            <!-- Input Username -->
+            <!-- Input Email -->
             <div class="form-group">
-                <label for="username" class="form-label">Email</label>
+                <label for="email" class="form-label">Email</label>
                 <input 
-                    type="text" 
-                    id="username" 
-                    name="username" 
-                    class="form-input @error('username') is-invalid @enderror" 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input @error('email') is-invalid @enderror" 
                     placeholder="Masukkan Email anda" 
-                    value="{{ old('username') }}" 
+                    value="{{ old('email') }}" 
                     required 
                     autofocus 
-                    autocomplete="username"
+                    autocomplete="email"
                 >
-                @error('username')
+                @error('email')
                     <div class="error-message">
                         <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="display:inline-block; vertical-align:middle;">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>

@@ -56,7 +56,7 @@
                     </h3>
 
                     <p class="text-muted text-center mb-2">
-                        {{ $user->username ?? $user->email }}
+                        {{ $user->email }}
                     </p>
 
                     <div class="mb-3">
@@ -120,16 +120,16 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="username">Username / Email Login <span class="text-danger">*</span></label>
+                            <label for="email">Alamat Email Login <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                                 </div>
-                                <input type="text" class="form-control @error('username') is-invalid @enderror" 
-                                       id="username" name="username" 
-                                       value="{{ old('username', $user->username ?? $user->email) }}" required>
+                                <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                                       id="email" name="email" 
+                                       value="{{ old('email', $user->email) }}" required>
                             </div>
-                            @error('username')
+                            @error('email')
                                 <span class="invalid-feedback d-block">{{ $message }}</span>
                             @enderror
                         </div>

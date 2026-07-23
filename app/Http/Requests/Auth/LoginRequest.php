@@ -28,7 +28,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ];
     }
@@ -42,11 +42,11 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('username', 'password'), $this->boolean('remember'))) {
+        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'username' => 'Email/Username atau kata sandi yang Anda masukkan salah. Silakan periksa kembali.',
+                'email' => 'Email atau kata sandi yang Anda masukkan salah. Silakan periksa kembali.',
             ]);
         }
 
@@ -69,7 +69,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'username' => "Terlalu banyak percobaan login yang gagal. Akses dikunci sementara demi keamanan. Silakan coba lagi dalam {$seconds} detik.",
+            'email' => "Terlalu banyak percobaan login yang gagal. Akses dikunci sementara demi keamanan. Silakan coba lagi dalam {$seconds} detik.",
         ]);
     }
 
@@ -78,6 +78,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('username')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
     }
 }
