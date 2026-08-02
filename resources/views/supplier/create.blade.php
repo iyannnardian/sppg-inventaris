@@ -13,16 +13,15 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="nama_supplier">Nama Supplier <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="nama_supplier" name="nama_supplier" placeholder="Contoh: PT. Sumber Protein, Toko Sayur Sehat" required autocomplete="off">
+                        <input type="text" class="form-control" id="nama_supplier" name="nama_supplier" placeholder="Contoh: PT. Sumber Protein, Toko Sayur Sehat" required oninvalid="this.setCustomValidity('Nama supplier wajib diisi.')" oninput="this.setCustomValidity('')" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label for="no_telp">No. Telepon</label>
-                        <input type="text" class="form-control" id="no_telp" name="no_telp" placeholder="Contoh: 081234567890" maxlength="13" minlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" autocomplete="off">
-                        <small class="form-text text-muted">Format: 11 - 13 digit angka saja.</small>
+                        <label for="no_telp">No. Telepon <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="no_telp" name="no_telp" placeholder="Contoh: 081234567890" maxlength="13" minlength="11" oninput="this.setCustomValidity(''); this.value = this.value.replace(/[^0-9]/g, '');" required oninvalid="this.setCustomValidity('No. telepon wajib diisi.')" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label for="alamat">Alamat Supplier</label>
-                        <textarea class="form-control" id="alamat" name="alamat" rows="3" placeholder="Masukkan alamat lengkap supplier (opsional)"></textarea>
+                        <label for="alamat">Alamat Supplier<span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="alamat" name="alamat" rows="3" placeholder="Masukkan alamat lengkap supplier "></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0">

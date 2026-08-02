@@ -41,18 +41,30 @@ class BarangController extends Controller
             abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
 
+        $kodeBarang = $request->kode_barang ? trim($request->kode_barang) : null;
+        if ($kodeBarang !== null && $request->id_subkategori) {
+            $subKat = SubKategori::find($request->id_subkategori);
+            if ($subKat && !empty($subKat->kode_subkategori)) {
+                $prefix = trim($subKat->kode_subkategori) . '.';
+                if (!str_starts_with($kodeBarang, $prefix)) {
+                    $kodeBarang = $prefix . $kodeBarang;
+                }
+            }
+        }
+
         $request->merge([
-            'kode_barang' => $request->kode_barang ? trim($request->kode_barang) : null,
+            'kode_barang' => $kodeBarang,
             'nama_barang' => trim($request->nama_barang ?? ''),
         ]);
 
         $request->validate([
-            'kode_barang' => 'nullable|string|max:50|unique:barangs,kode_barang',
+            'kode_barang' => 'required|string|max:50|unique:barangs,kode_barang',
             'nama_barang' => 'required|string|max:255|unique:barangs,nama_barang',
             'id_subkategori' => 'required|exists:sub_kategoris,id_subkategori',
             'id_satuan' => 'required|exists:satuans,id_satuan',
             'stok_minimum' => 'nullable|numeric|min:0',
         ], [
+            'kode_barang.required' => 'Kode barang wajib diisi.',
             'kode_barang.max' => 'Kode barang maksimal 50 karakter.',
             'kode_barang.unique' => 'Kode barang sudah terdaftar.',
             'nama_barang.required' => 'Nama barang wajib diisi.',
@@ -82,18 +94,30 @@ class BarangController extends Controller
 
         $barang = Barang::findOrFail($id);
 
+        $kodeBarang = $request->kode_barang ? trim($request->kode_barang) : null;
+        if ($kodeBarang !== null && $request->id_subkategori) {
+            $subKat = SubKategori::find($request->id_subkategori);
+            if ($subKat && !empty($subKat->kode_subkategori)) {
+                $prefix = trim($subKat->kode_subkategori) . '.';
+                if (!str_starts_with($kodeBarang, $prefix)) {
+                    $kodeBarang = $prefix . $kodeBarang;
+                }
+            }
+        }
+
         $request->merge([
-            'kode_barang' => $request->kode_barang ? trim($request->kode_barang) : null,
+            'kode_barang' => $kodeBarang,
             'nama_barang' => trim($request->nama_barang ?? ''),
         ]);
 
         $request->validate([
-            'kode_barang' => 'nullable|string|max:50|unique:barangs,kode_barang,' . $id . ',id_barang',
+            'kode_barang' => 'required|string|max:50|unique:barangs,kode_barang,' . $id . ',id_barang',
             'nama_barang' => 'required|string|max:255|unique:barangs,nama_barang,' . $id . ',id_barang',
             'id_subkategori' => 'required|exists:sub_kategoris,id_subkategori',
             'id_satuan' => 'required|exists:satuans,id_satuan',
             'stok_minimum' => 'nullable|numeric|min:0',
         ], [
+            'kode_barang.required' => 'Kode barang wajib diisi.',
             'kode_barang.max' => 'Kode barang maksimal 50 karakter.',
             'kode_barang.unique' => 'Kode barang sudah terdaftar.',
             'nama_barang.required' => 'Nama barang wajib diisi.',

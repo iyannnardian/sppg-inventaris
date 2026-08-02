@@ -39,9 +39,10 @@ class KategoriController extends Controller
         ]);
 
         $request->validate([
-            'kode_kategori' => 'nullable|string|max:50|unique:kategoris,kode_kategori',
+            'kode_kategori' => 'required|string|max:50|unique:kategoris,kode_kategori',
             'nama_kategori' => 'required|string|max:255|unique:kategoris,nama_kategori',
         ], [
+            'kode_kategori.required' => 'Kode kategori wajib diisi.',
             'kode_kategori.unique' => 'Kode kategori sudah digunakan.',
             'nama_kategori.required' => 'Nama kategori wajib diisi.',
             'nama_kategori.unique' => 'Nama kategori sudah digunakan.',
@@ -69,9 +70,10 @@ class KategoriController extends Controller
         ]);
 
         $request->validate([
-            'kode_kategori' => 'nullable|string|max:50|unique:kategoris,kode_kategori,' . $id . ',id_kategori',
+            'kode_kategori' => 'required|string|max:50|unique:kategoris,kode_kategori,' . $id . ',id_kategori',
             'nama_kategori' => 'required|string|max:255|unique:kategoris,nama_kategori,' . $id . ',id_kategori',
         ], [
+            'kode_kategori.required' => 'Kode kategori wajib diisi.',
             'kode_kategori.unique' => 'Kode kategori sudah digunakan.',
             'nama_kategori.required' => 'Nama kategori wajib diisi.',
             'nama_kategori.unique' => 'Nama kategori sudah digunakan.',

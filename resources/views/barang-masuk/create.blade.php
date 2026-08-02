@@ -17,13 +17,13 @@
                     <!-- Header Form: No Faktur & Supplier -->
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label for="no_faktur" class="font-weight-bold text-secondary" style="font-size: 13px;">No. Faktur (unik)</label>
-                            <input type="text" class="form-control" id="no_faktur" name="no_faktur" value="{{ old('no_faktur') }}" placeholder="Masukkan No. Faktur" required style="border-radius: 8px;">
+                            <label for="no_faktur" class="font-weight-bold text-secondary" style="font-size: 13px;">No. Faktur<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="no_faktur" name="no_faktur" value="{{ old('no_faktur') }}" placeholder="Masukkan No. Faktur" required oninvalid="this.setCustomValidity('No. faktur wajib diisi.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;">
 
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="id_supplier_create" class="font-weight-bold text-secondary" style="font-size: 13px;">Supplier</label>
-                            <select class="form-control" id="id_supplier_create" name="id_supplier" required style="border-radius: 8px;">
+                            <label for="id_supplier_create" class="font-weight-bold text-secondary" style="font-size: 13px;">Supplier<span class="text-danger">*</span></label>
+                            <select class="form-control" id="id_supplier_create" name="id_supplier" required oninvalid="this.setCustomValidity('Silakan pilih supplier.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;">
                                 <option value="" disabled selected>— Pilih supplier —</option>
                                 @foreach($suppliers as $s)
                                     <option value="{{ $s->id_supplier }}">{{ $s->nama_supplier }}</option>
@@ -35,12 +35,12 @@
                     <!-- Header Form: Tanggal Faktur & Tanggal Terima -->
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label for="tgl_faktur" class="font-weight-bold text-secondary" style="font-size: 13px;">Tanggal Faktur</label>
-                            <input type="date" class="form-control" id="tgl_faktur" name="tgl_faktur" value="{{ date('Y-m-d') }}" required style="border-radius: 8px;">
+                            <label for="tgl_faktur" class="font-weight-bold text-secondary" style="font-size: 13px;">Tanggal Faktur<span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="tgl_faktur" name="tgl_faktur" value="{{ date('Y-m-d') }}" required oninvalid="this.setCustomValidity('Tanggal faktur wajib diisi.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;">
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="tgl_terima" class="font-weight-bold text-secondary" style="font-size: 13px;">Tanggal Terima (rencana)</label>
-                            <input type="date" class="form-control" id="tgl_terima" name="tgl_terima" value="{{ date('Y-m-d') }}" required style="border-radius: 8px;">
+                            <label for="tgl_terima" class="font-weight-bold text-secondary" style="font-size: 13px;">Tanggal Terima<span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="tgl_terima" name="tgl_terima" value="{{ date('Y-m-d') }}" required oninvalid="this.setCustomValidity('Tanggal terima wajib diisi.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;">
                         </div>
                     </div>
 
@@ -63,7 +63,7 @@
                                 <!-- Baris Pertama Default -->
                                 <tr class="baris-item">
                                     <td style="padding: 3px 4px;">
-                                        <select class="form-control select-barang" name="items[0][id_barang]" required style="border-radius: 8px;">
+                                        <select class="form-control select-barang" name="items[0][id_barang]" required oninvalid="this.setCustomValidity('Silakan pilih barang.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;">
                                             <option value="" disabled selected>— Pilih barang —</option>
                                             @foreach($barangs as $b)
                                                 <option value="{{ $b->id_barang }}" data-satuan="{{ $b->satuan->nama_satuan ?? '' }}">
@@ -76,10 +76,10 @@
                                         <span class="badge badge-light border info-satuan-item py-2 px-2 d-block text-center font-weight-normal text-secondary" style="border-radius: 8px; font-size: 13px;">-</span>
                                     </td>
                                     <td style="padding: 3px 4px;">
-                                        <input type="text" class="form-control input-qty" name="items[0][qty]" placeholder="1.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
+                                        <input type="text" class="form-control input-qty" name="items[0][qty]" placeholder="1.000" required oninvalid="this.setCustomValidity('Jumlah (QTY) wajib diisi.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                                     </td>
                                     <td style="padding: 3px 4px;">
-                                        <input type="text" class="form-control input-harga" name="items[0][harga]" placeholder="12.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
+                                        <input type="text" class="form-control input-harga" name="items[0][harga]" placeholder="12.000" required oninvalid="this.setCustomValidity('Harga satuan wajib diisi.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                                     </td>
                                     <td class="text-right align-middle" style="padding: 3px 4px;">
                                         <span class="font-weight-bold text-dark input-subtotal-text">Rp 0</span>

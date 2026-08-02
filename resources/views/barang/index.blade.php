@@ -148,22 +148,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
-            // Auto-fill Prefix Kode Barang saat pilih Sub-Kategori pada modal Tambah Barang
-            const selectCreateSubKategori = document.getElementById('id_subkategori');
-            const inputCreateKode = document.getElementById('kode_barang');
-
-            if (selectCreateSubKategori && inputCreateKode) {
-                selectCreateSubKategori.addEventListener('change', function () {
-                    const selectedOption = this.options[this.selectedIndex];
-                    const kodeSub = selectedOption ? selectedOption.getAttribute('data-kode') : null;
-                    if (kodeSub && kodeSub.trim() !== '') {
-                        const prefix = kodeSub.trim() + '.';
-                        inputCreateKode.value = prefix;
-                        inputCreateKode.focus();
-                    }
-                });
-            }
-
             const editButtons = document.querySelectorAll('.btn-edit');
             const formEdit = document.getElementById('formEditBarang');
             const inputKode = document.getElementById('edit_kode_barang');
@@ -171,6 +155,25 @@
             const selectSubKategori = document.getElementById('edit_id_subkategori');
             const selectSatuan = document.getElementById('edit_id_satuan');
             const inputStokMinimum = document.getElementById('edit_stok_minimum');
+
+            function updateEditBarangKodeSuffix() {
+                if (!selectSubKategori || !inputKode) return;
+                const selectedOption = selectSubKategori.options[selectSubKategori.selectedIndex];
+                const parentKode = selectedOption ? selectedOption.getAttribute('data-kode') : null;
+                let rawKode = inputKode.getAttribute('data-full-kode') || inputKode.value || '';
+                
+                if (parentKode && parentKode.trim() !== '') {
+                    const prefix = parentKode.trim() + '.';
+                    if (rawKode.startsWith(prefix)) {
+                        rawKode = rawKode.substring(prefix.length);
+                    }
+                }
+                inputKode.value = rawKode;
+            }
+
+            if (selectSubKategori) {
+                selectSubKategori.addEventListener('change', updateEditBarangKodeSuffix);
+            }
 
             editButtons.forEach(button => {
                 button.addEventListener('click', function () {
@@ -182,9 +185,12 @@
                     const stokMin = this.getAttribute('data-stok_minimum');
 
                     formEdit.setAttribute('action', `/barang/${id}`);
-                    inputKode.value = kode ?? '';
-                    inputNama.value = nama ?? '';
                     selectSubKategori.value = subKategori;
+                    inputKode.setAttribute('data-full-kode', kode ?? '');
+                    
+                    updateEditBarangKodeSuffix();
+
+                    inputNama.value = nama ?? '';
                     selectSatuan.value = satuan;
                     inputStokMinimum.value = stokMin ?? 0;
                 });

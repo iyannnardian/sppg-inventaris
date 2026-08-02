@@ -13,11 +13,11 @@
                 @method('PUT')
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="edit_nama_satuan">Nama Satuan <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="edit_nama_satuan" name="nama_satuan" required autocomplete="off">
+                        <label for="edit_nama_satuan">Kode Satuan <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit_nama_satuan" name="nama_satuan" required oninvalid="this.setCustomValidity('Kode satuan wajib diisi.')" oninput="this.setCustomValidity('')" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label for="edit_keterangan">Keterangan</label>
+                        <label for="edit_keterangan">Nama Satuan</label>
                         <input type="text" class="form-control" id="edit_keterangan" name="keterangan" autocomplete="off">
                     </div>
                 </div>

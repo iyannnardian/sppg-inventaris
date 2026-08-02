@@ -12,13 +12,12 @@
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="nama_satuan">Nama Satuan <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="nama_satuan" name="nama_satuan" placeholder="Contoh: kg, gram, liter, pcs, botol, dus" required autocomplete="off">
-                        <small class="form-text text-muted">Misal: kg, pcs, liter, ikat, bungkus, dll.</small>
+                        <label for="nama_satuan">Kode Satuan <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nama_satuan" name="nama_satuan" required oninvalid="this.setCustomValidity('Kode satuan wajib diisi.')" oninput="this.setCustomValidity('')" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label for="keterangan">Keterangan</label>
-                        <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Opsional (misal: Kilogram, Pieces, Botol 500ml)" autocomplete="off">
+                        <label for="keterangan">Nama Satuan</label>
+                        <input type="text" class="form-control" id="keterangan" name="keterangan" autocomplete="off">
                     </div>
                 </div>
                 <div class="modal-footer border-0">

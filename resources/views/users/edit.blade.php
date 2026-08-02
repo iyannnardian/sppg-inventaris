@@ -14,21 +14,22 @@
                 <div class="modal-body text-left">
                     <div class="form-group">
                         <label for="edit_name">Nama Lengkap <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="edit_name" name="name" required autocomplete="off">
+                        <input type="text" class="form-control" id="edit_name" name="name" required oninvalid="this.setCustomValidity('Nama lengkap wajib diisi.')" oninput="this.setCustomValidity('')" autocomplete="off">
                     </div>
 
                     <div class="form-group">
-                        <label for="edit_email">Alamat Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="edit_email" name="email" required autocomplete="off">
+                        <label for="edit_username">Username Login <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit_username" name="username" required oninvalid="this.setCustomValidity('Username login wajib diisi.')" oninput="this.setCustomValidity('')" autocomplete="off">
                     </div>
 
                     <div class="form-group">
                         <label for="edit_role">Pilih Peran / Role <span class="text-danger">*</span></label>
-                        <select class="form-control" id="edit_role" name="role" required>
+                        <select class="form-control" id="edit_role" name="role" required oninvalid="this.setCustomValidity('Silakan pilih peran akses.')" oninput="this.setCustomValidity('')">
                             <option value="admin">Admin (Akses Penuh)</option>
                             <option value="ahli gizi">Ahli Gizi (Akses Dapur & Transaksi)</option>
                             <option value="kepala dapur">Kepala Dapur (Akses Monitoring & Laporan)</option>
                         </select>
+                        <small id="edit_role_note" class="form-text text-info d-none mt-1"><i class="fas fa-lock mr-1"></i>Peran akun Anda sendiri dikunci dan tidak dapat diubah.</small>
                     </div>
 
                     <div class="form-group">

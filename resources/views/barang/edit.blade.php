@@ -16,7 +16,7 @@
                         <div class="col-md-6 form-group mb-3">
                             <label for="edit_id_subkategori" class="small font-weight-bold text-secondary">Sub-Kategori 
                                  <span class="text-danger">*</span></label>
-                            <select class="form-control form-control-lg bg-light border-0" id="edit_id_subkategori" name="id_subkategori" required style="border-radius: 8px; font-size: 14px;">
+                            <select class="form-control form-control-lg bg-light border-0" id="edit_id_subkategori" name="id_subkategori" required oninvalid="this.setCustomValidity('Silakan pilih Sub-Kategori.')" oninput="this.setCustomValidity('')" style="border-radius: 8px; font-size: 14px;">
                                 <option value="" disabled selected>— Pilih Sub-Kategori —</option>
                                 @foreach($subKategoris as $sub)
                                     <option value="{{ $sub->id_subkategori }}" data-kode="{{ $sub->kode_subkategori }}">
@@ -26,18 +26,18 @@
                             </select>
                         </div>
                         <div class="col-md-6 form-group mb-3">
-                            <label for="edit_kode_barang" class="small font-weight-bold text-secondary">Kode Barang (unik)<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_kode_barang" name="kode_barang" placeholder="PH.01.001" autocomplete="off" style="border-radius: 8px; font-size: 14px;">
+                            <label for="edit_kode_barang" class="small font-weight-bold text-secondary">Kode Barang <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_kode_barang" name="kode_barang" placeholder="Contoh: 001" required oninvalid="this.setCustomValidity('Kode barang wajib diisi.')" oninput="this.setCustomValidity('')" autocomplete="off" style="border-radius: 8px; font-size: 14px;">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 form-group mb-3">
                             <label for="edit_nama_barang" class="small font-weight-bold text-secondary">Nama Barang <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_nama_barang" name="nama_barang" placeholder="Minyak Goreng" required autocomplete="off" style="border-radius: 8px; font-size: 14px;">
+                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_nama_barang" name="nama_barang" placeholder="Minyak Goreng" required oninvalid="this.setCustomValidity('Nama barang wajib diisi.')" oninput="this.setCustomValidity('')" autocomplete="off" style="border-radius: 8px; font-size: 14px;">
                         </div>
                         <div class="col-md-6 form-group mb-3">
                             <label for="edit_id_satuan" class="small font-weight-bold text-secondary">Satuan <span class="text-danger">*</span></label>
-                            <select class="form-control form-control-lg bg-light border-0" id="edit_id_satuan" name="id_satuan" required style="border-radius: 8px; font-size: 14px;">
+                            <select class="form-control form-control-lg bg-light border-0" id="edit_id_satuan" name="id_satuan" required oninvalid="this.setCustomValidity('Silakan pilih satuan barang.')" oninput="this.setCustomValidity('')" style="border-radius: 8px; font-size: 14px;">
                                 <option value="" disabled selected>— Pilih satuan —</option>
                                 @foreach($satuans as $s)
                                     <option value="{{ $s->id_satuan }}">{{ $s->nama_satuan }}{{ $s->keterangan ? ' / ' . $s->keterangan : '' }}</option>

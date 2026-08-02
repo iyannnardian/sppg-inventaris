@@ -15,7 +15,7 @@
                     <div class="row">
                         <div class="col-md-6 form-group mb-3">
                             <label for="edit_id_kategori_induk" class="small font-weight-bold text-secondary">Kategori Induk <span class="text-danger">*</span></label>
-                            <select class="form-control form-control-lg bg-light border-0" id="edit_id_kategori_induk" name="id_kategori" required style="border-radius: 8px; font-size: 14px;">
+                            <select class="form-control form-control-lg bg-light border-0" id="edit_id_kategori_induk" name="id_kategori" required oninvalid="this.setCustomValidity('Kategori Induk wajib dipilih.')" oninput="this.setCustomValidity('')" style="border-radius: 8px; font-size: 14px;">
                                 <option value="" disabled selected>— Pilih Kategori Utama —</option>
                                 @foreach($kategoris as $k)
                                     <option value="{{ $k->id_kategori }}" data-kode="{{ $k->kode_kategori }}">
@@ -25,14 +25,14 @@
                             </select>
                         </div>
                         <div class="col-md-6 form-group mb-3">
-                            <label for="edit_kode_subkategori" class="small font-weight-bold text-secondary">Kode Sub-Kategori</label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_kode_subkategori" name="kode_subkategori" placeholder="Contoh: KH.01" autocomplete="off" style="border-radius: 8px; font-size: 14px;">
+                            <label for="edit_kode_subkategori" class="small font-weight-bold text-secondary">Kode Sub-Kategori <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_kode_subkategori" name="kode_subkategori" placeholder="Contoh: 01" required oninvalid="this.setCustomValidity('Kode sub-kategori wajib diisi.')" oninput="this.setCustomValidity('')" autocomplete="off" style="border-radius: 8px; font-size: 14px;">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12 form-group mb-3">
                             <label for="edit_nama_subkategori" class="small font-weight-bold text-secondary">Nama Sub-Kategori <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_nama_subkategori" name="nama_subkategori" placeholder="Contoh: OLAHAN PADI" required autocomplete="off" style="border-radius: 8px; font-size: 14px;">
+                            <input type="text" class="form-control form-control-lg bg-light border-0" id="edit_nama_subkategori" name="nama_subkategori" placeholder="Contoh: OLAHAN PADI" required oninvalid="this.setCustomValidity('Nama sub-kategori wajib diisi.')" oninput="this.setCustomValidity('')" autocomplete="off" style="border-radius: 8px; font-size: 14px;">
                         </div>
                     </div>
                 </div>

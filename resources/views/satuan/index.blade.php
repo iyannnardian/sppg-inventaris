@@ -67,8 +67,8 @@
                         <thead class="thead-light">
                             <tr>
                                 <th style="width: 8%">No</th>
-                                <th style="width: 30%">Nama Satuan</th>
-                                <th style="width: 45%">Keterangan</th>
+                                <th style="width: 30%">Kode Satuan</th>
+                                <th style="width: 45%">Nama Satuan</th>
                                 @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
                                     <th style="width: 17%" class="text-right">Aksi</th>
                                 @endif

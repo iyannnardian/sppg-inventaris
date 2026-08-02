@@ -17,11 +17,11 @@
                     <!-- Header Form: No Faktur & Supplier -->
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label for="edit_no_faktur" class="font-weight-bold text-secondary" style="font-size: 13px;">No. Faktur (unik)</label>
+                            <label for="edit_no_faktur" class="font-weight-bold text-secondary" style="font-size: 13px;">No. Faktur<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="edit_no_faktur" name="no_faktur" placeholder="Masukkan No. Faktur" required style="border-radius: 8px;">
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="edit_id_supplier" class="font-weight-bold text-secondary" style="font-size: 13px;">Supplier</label>
+                            <label for="edit_id_supplier" class="font-weight-bold text-secondary" style="font-size: 13px;">Supplier<span class="text-danger">*</span></label>
                             <select class="form-control" id="edit_id_supplier" name="id_supplier" required style="border-radius: 8px;">
                                 <option value="" disabled selected>— Pilih supplier —</option>
                                 @foreach($suppliers as $s)
@@ -34,11 +34,11 @@
                     <!-- Header Form: Tanggal Faktur & Tanggal Terima -->
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label for="edit_tgl_faktur" class="font-weight-bold text-secondary" style="font-size: 13px;">Tanggal Faktur</label>
+                            <label for="edit_tgl_faktur" class="font-weight-bold text-secondary" style="font-size: 13px;">Tanggal Faktur<span class="text-danger">*</span></label>
                             <input type="date" class="form-control" id="edit_tgl_faktur" name="tgl_faktur" required style="border-radius: 8px;">
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="edit_tgl_terima" class="font-weight-bold text-secondary" style="font-size: 13px;">Tanggal Terima (rencana)</label>
+                            <label for="edit_tgl_terima" class="font-weight-bold text-secondary" style="font-size: 13px;">Tanggal Terima (rencana)<span class="text-danger">*</span></label>
                             <input type="date" class="form-control" id="edit_tgl_terima" name="tgl_terima" required style="border-radius: 8px;">
                         </div>
                     </div>

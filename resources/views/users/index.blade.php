@@ -55,11 +55,10 @@
                     <thead class="thead-light">
                         <tr>
                             <th style="width: 5%">No</th>
-                            <th style="width: 25%">Nama Lengkap</th>
-                            <th style="width: 25%">Alamat Email</th>
+                            <th style="width: 35%">Nama Lengkap</th>
+                            <th style="width: 25%">Username</th>
                             <th style="width: 20%">Peran / Role</th>
-                            <th style="width: 15%">Tanggal Dibuat</th>
-                            <th style="width: 10%" class="text-right">Aksi</th>
+                            <th style="width: 15%" class="text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -72,7 +71,7 @@
                                     <span class="badge badge-info ml-1">Anda</span>
                                 @endif
                             </td>
-                            <td>{{ $user->email }}</td>
+                            <td><code>{{ $user->username ?? '-' }}</code></td>
                             <td>
                                 @php $role = strtolower($user->role ?? '') @endphp
                                 @if($role == 'admin')
@@ -85,14 +84,14 @@
                                     <span class="badge badge-secondary text-uppercase">{{ $user->role }}</span>
                                 @endif
                             </td>
-                            <td>{{ $user->created_at->format('d M Y') }}</td>
                             <td class="text-right">
                                 <div class="d-flex justify-content-end gap-2">
                                     <button class="btn btn-warning btn-sm text-white btn-edit" 
                                             data-id="{{ $user->id_user }}"
                                             data-name="{{ $user->name }}"
-                                            data-email="{{ $user->email }}"
+                                            data-username="{{ $user->username }}"
                                             data-role="{{ strtolower($user->role) }}"
+                                            data-is-self="{{ Auth::user()->id_user == $user->id_user ? '1' : '0' }}"
                                             data-toggle="modal" 
                                             data-target="#modalEdit"
                                             title="Edit Pengguna">
@@ -128,22 +127,32 @@
             const editButtons = document.querySelectorAll('.btn-edit');
             const formEdit = document.getElementById('formEditUser');
             const editName = document.getElementById('edit_name');
-            const editEmail = document.getElementById('edit_email');
+            const editUsername = document.getElementById('edit_username');
             const editRole = document.getElementById('edit_role');
+            const editRoleNote = document.getElementById('edit_role_note');
             const editPassword = document.getElementById('edit_password');
 
             editButtons.forEach(button => {
                 button.addEventListener('click', function () {
                     const id = this.getAttribute('data-id');
                     const name = this.getAttribute('data-name');
-                    const email = this.getAttribute('data-email');
+                    const username = this.getAttribute('data-username');
                     const role = (this.getAttribute('data-role') || '').toLowerCase();
+                    const isSelf = this.getAttribute('data-is-self') === '1';
 
                     formEdit.setAttribute('action', `/users/${id}`);
                     editName.value = name;
-                    editEmail.value = email;
+                    editUsername.value = username || '';
                     editRole.value = role;
                     editPassword.value = ''; // Reset password field
+
+                    if (isSelf) {
+                        editRole.disabled = true;
+                        if (editRoleNote) editRoleNote.classList.remove('d-none');
+                    } else {
+                        editRole.disabled = false;
+                        if (editRoleNote) editRoleNote.classList.add('d-none');
+                    }
                 });
             });
         });

@@ -33,15 +33,15 @@ class ProfileController extends Controller
 
         $request->validate([
             'nama' => 'required|string|max:100',
-            'email' => 'required|email|max:255|unique:users,email,' . $userId . ',id_user',
+            'username' => 'required|string|max:50|alpha_dash|unique:users,username,' . $userId . ',id_user',
             'current_password' => 'nullable|required_with:password|current_password',
             'password' => 'nullable|min:6|confirmed',
         ], [
             'nama.required' => 'Nama lengkap wajib diisi.',
             'nama.max' => 'Nama lengkap maksimal 100 karakter.',
-            'email.required' => 'Alamat Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
-            'email.unique' => 'Alamat Email ini sudah digunakan oleh akun lain.',
+            'username.required' => 'Username wajib diisi.',
+            'username.alpha_dash' => 'Username hanya boleh berisi huruf, angka, strip (-), dan garis bawah (_).',
+            'username.unique' => 'Username ini sudah digunakan oleh akun lain.',
             'current_password.required_with' => 'Masukkan kata sandi saat ini untuk mengubah kata sandi.',
             'current_password.current_password' => 'Kata sandi saat ini tidak sesuai.',
             'password.min' => 'Kata sandi baru minimal 6 karakter.',
@@ -49,7 +49,7 @@ class ProfileController extends Controller
         ]);
 
         $user->nama = $request->nama;
-        $user->email = $request->email;
+        $user->username = strtolower(trim($request->username));
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);

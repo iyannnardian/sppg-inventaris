@@ -13,17 +13,18 @@
                 <div class="modal-body text-left">
                     <div class="form-group">
                         <label for="name">Nama Lengkap <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="name" name="name" placeholder="Contoh: Rian Nardian" required autocomplete="off" value="{{ old('name') }}">
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Contoh: Rian Nardian" required oninvalid="this.setCustomValidity('Nama lengkap wajib diisi.')" oninput="this.setCustomValidity('')" autocomplete="off" value="{{ old('name') }}">
                     </div>
 
                     <div class="form-group">
-                        <label for="email">Alamat Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Contoh: rian@example.com" required autocomplete="off" value="{{ old('email') }}">
+                        <label for="username">Username Login <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Contoh: rian_admin" required oninvalid="this.setCustomValidity('Username login wajib diisi.')" oninput="this.setCustomValidity('')" autocomplete="off" value="{{ old('username') }}">
+                        <small class="form-text text-muted">Digunakan untuk masuk / login ke sistem.</small>
                     </div>
 
                     <div class="form-group">
                         <label for="role">Pilih Peran / Role <span class="text-danger">*</span></label>
-                        <select class="form-control" id="role" name="role" required>
+                        <select class="form-control" id="role" name="role" required oninvalid="this.setCustomValidity('Silakan pilih peran akses.')" oninput="this.setCustomValidity('')">
                             <option value="" disabled selected>-- Pilih Peran Akses --</option>
                             <option value="admin">Admin (Akses Penuh)</option>
                             <option value="ahli gizi">Ahli Gizi (Akses Dapur & Transaksi)</option>
@@ -33,7 +34,7 @@
 
                     <div class="form-group">
                         <label for="password">Kata Sandi Akun <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Minimal terdiri dari 8 karakter" required>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Minimal terdiri dari 8 karakter" required oninvalid="this.setCustomValidity('Kata sandi akun wajib diisi.')" oninput="this.setCustomValidity('')">
                     </div>
                 </div>
                 <div class="modal-footer border-0">

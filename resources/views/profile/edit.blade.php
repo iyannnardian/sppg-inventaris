@@ -55,30 +55,9 @@
                         {{ $user->nama ?? $user->name }}
                     </h3>
 
-                    <p class="text-muted text-center mb-2">
-                        {{ $user->email }}
+                    <p class="text-muted text-center mb-3">
+                        <code>@ {{ $user->username ?? '-' }}</code>
                     </p>
-
-                    <div class="mb-3">
-                        <span class="badge badge-primary text-uppercase px-3 py-2 shadow-xs">
-                            <i class="fas fa-shield-alt mr-1"></i> {{ $user->role ?? 'User' }}
-                        </span>
-                    </div>
-
-                    <ul class="list-group list-group-unbordered mb-3 text-left">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-id-badge mr-2 text-info"></i>ID Pengguna</span>
-                            <span class="font-weight-bold">#{{ $user->id_user ?? $user->id }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-user-shield mr-2 text-warning"></i>Hak Akses</span>
-                            <span class="font-weight-bold text-capitalize">{{ $user->role ?? 'User' }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0">
-                            <span><i class="fas fa-calendar-alt mr-2 text-success"></i>Terdaftar Sejak</span>
-                            <span class="font-weight-bold">{{ $user->created_at ? $user->created_at->format('d M Y') : '-' }}</span>
-                        </li>
-                    </ul>
 
                     <button class="btn btn-danger btn-block font-weight-bold mt-3" 
                             onclick="event.preventDefault(); document.getElementById('logout-form-profile').submit();">
@@ -119,31 +98,19 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
-                            <label for="email">Alamat Email Login <span class="text-danger">*</span></label>
+                        <div class="form-group mb-0">
+                            <label for="username">Username Login <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-at"></i></span>
                                 </div>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                       id="email" name="email" 
-                                       value="{{ old('email', $user->email) }}" required>
+                                <input type="text" class="form-control @error('username') is-invalid @enderror" 
+                                       id="username" name="username" 
+                                       value="{{ old('username', $user->username) }}" required>
                             </div>
-                            @error('email')
+                            @error('username')
                                 <span class="invalid-feedback d-block">{{ $message }}</span>
                             @enderror
-                        </div>
-
-                        <div class="form-group mb-0">
-                            <label>Peran / Role Sistem</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
-                                </div>
-                                <input type="text" class="form-control bg-light" 
-                                       value="{{ $user->role ?? 'User' }}" readonly>
-                            </div>
-                            <small class="form-text text-muted">Peran pengguna dikelola oleh Administrator sistem.</small>
                         </div>
                     </div>
 

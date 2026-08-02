@@ -15,18 +15,30 @@ class SubKategoriController extends Controller
             abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
 
+        $kodeSub = $request->kode_subkategori ? trim($request->kode_subkategori) : null;
+        if ($kodeSub !== null && $request->id_kategori) {
+            $kategori = Kategori::find($request->id_kategori);
+            if ($kategori && !empty($kategori->kode_kategori)) {
+                $prefix = trim($kategori->kode_kategori) . '.';
+                if (!str_starts_with($kodeSub, $prefix)) {
+                    $kodeSub = $prefix . $kodeSub;
+                }
+            }
+        }
+
         $request->merge([
-            'kode_subkategori' => $request->kode_subkategori ? trim($request->kode_subkategori) : null,
+            'kode_subkategori' => $kodeSub,
             'nama_subkategori' => trim($request->nama_subkategori ?? ''),
         ]);
 
         $request->validate([
             'id_kategori' => 'required|exists:kategoris,id_kategori',
-            'kode_subkategori' => 'nullable|string|max:50|unique:sub_kategoris,kode_subkategori',
+            'kode_subkategori' => 'required|string|max:50|unique:sub_kategoris,kode_subkategori',
             'nama_subkategori' => 'required|string|max:255|unique:sub_kategoris,nama_subkategori',
         ], [
             'id_kategori.required' => 'Kategori Induk wajib dipilih.',
             'id_kategori.exists' => 'Kategori Induk tidak valid.',
+            'kode_subkategori.required' => 'Kode sub-kategori wajib diisi.',
             'kode_subkategori.unique' => 'Kode sub-kategori sudah digunakan.',
             'nama_subkategori.required' => 'Nama sub-kategori wajib diisi.',
             'nama_subkategori.unique' => 'Nama sub-kategori sudah terdaftar.',
@@ -49,18 +61,30 @@ class SubKategoriController extends Controller
 
         $subKategori = SubKategori::findOrFail($id);
 
+        $kodeSub = $request->kode_subkategori ? trim($request->kode_subkategori) : null;
+        if ($kodeSub !== null && $request->id_kategori) {
+            $kategori = Kategori::find($request->id_kategori);
+            if ($kategori && !empty($kategori->kode_kategori)) {
+                $prefix = trim($kategori->kode_kategori) . '.';
+                if (!str_starts_with($kodeSub, $prefix)) {
+                    $kodeSub = $prefix . $kodeSub;
+                }
+            }
+        }
+
         $request->merge([
-            'kode_subkategori' => $request->kode_subkategori ? trim($request->kode_subkategori) : null,
+            'kode_subkategori' => $kodeSub,
             'nama_subkategori' => trim($request->nama_subkategori ?? ''),
         ]);
 
         $request->validate([
             'id_kategori' => 'required|exists:kategoris,id_kategori',
-            'kode_subkategori' => 'nullable|string|max:50|unique:sub_kategoris,kode_subkategori,' . $id . ',id_subkategori',
+            'kode_subkategori' => 'required|string|max:50|unique:sub_kategoris,kode_subkategori,' . $id . ',id_subkategori',
             'nama_subkategori' => 'required|string|max:255|unique:sub_kategoris,nama_subkategori,' . $id . ',id_subkategori',
         ], [
             'id_kategori.required' => 'Kategori Induk wajib dipilih.',
             'id_kategori.exists' => 'Kategori Induk tidak valid.',
+            'kode_subkategori.required' => 'Kode sub-kategori wajib diisi.',
             'kode_subkategori.unique' => 'Kode sub-kategori sudah digunakan.',
             'nama_subkategori.required' => 'Nama sub-kategori wajib diisi.',
             'nama_subkategori.unique' => 'Nama sub-kategori sudah terdaftar.',

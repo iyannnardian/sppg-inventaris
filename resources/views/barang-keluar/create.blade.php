@@ -14,7 +14,7 @@
                     <!-- Header Form: Tanggal Pengeluaran -->
                     <div class="form-group mb-3">
                         <label for="tgl_pengeluaran" class="font-weight-bold text-secondary" style="font-size: 13px;">Tanggal Pengeluaran <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="tgl_pengeluaran" name="tgl_pengeluaran" value="{{ date('Y-m-d') }}" required style="border-radius: 8px;">
+                        <input type="date" class="form-control" id="tgl_pengeluaran" name="tgl_pengeluaran" value="{{ date('Y-m-d') }}" required oninvalid="this.setCustomValidity('Tanggal pengeluaran wajib diisi.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;">
                     </div>
 
                     <!-- Section Multi-Item Barang (Pengeluaran_Detail) -->
@@ -34,7 +34,7 @@
                                 <!-- Baris Pertama Default -->
                                 <tr class="baris-item">
                                     <td style="padding: 3px 4px;">
-                                        <select class="form-control select-barang" name="items[0][id_barang]" required style="border-radius: 8px;">
+                                        <select class="form-control select-barang" name="items[0][id_barang]" required oninvalid="this.setCustomValidity('Silakan pilih barang.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;">
                                             <option value="" disabled selected>— Pilih barang —</option>
                                             @foreach($barangs as $b)
                                                 <option value="{{ $b->id_barang }}" data-stok="{{ $b->stok }}" data-satuan="{{ $b->satuan->nama_satuan ?? '' }}">
@@ -47,7 +47,7 @@
                                         <span class="badge badge-light border info-stok-item py-2 px-2 d-block text-center font-weight-normal text-secondary" style="border-radius: 8px; font-size: 13px;">-</span>
                                     </td>
                                     <td style="padding: 3px 4px;">
-                                        <input type="text" class="form-control input-qty" name="items[0][qty]" placeholder="1.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
+                                        <input type="text" class="form-control input-qty" name="items[0][qty]" placeholder="1.000" required oninvalid="this.setCustomValidity('Jumlah keluar (QTY) wajib diisi.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                                         <small class="text-danger warning-stok-exceeded d-none font-weight-bold mt-1">Stok tidak mencukupi!</small>
                                     </td>
                                     <td class="text-center align-middle" style="padding: 3px 4px;">

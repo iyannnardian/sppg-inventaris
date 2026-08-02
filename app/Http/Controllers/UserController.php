@@ -39,19 +39,19 @@ class UserController extends Controller
 
         $request->merge([
             'name' => trim($request->name ?? ''),
-            'email' => strtolower(trim($request->email ?? '')),
+            'username' => strtolower(trim($request->username ?? '')),
         ]);
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email',
+            'username' => 'required|string|max:50|alpha_dash|unique:users,username',
             'role' => 'required|string',
             'password' => 'required|string|min:8',
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
-            'email.required' => 'Alamat email wajib diisi.',
-            'email.email' => 'Format alamat email tidak valid.',
-            'email.unique' => 'Alamat email ini sudah terdaftar untuk pengguna lain.',
+            'username.required' => 'Username wajib diisi.',
+            'username.alpha_dash' => 'Username hanya boleh berisi huruf, angka, strip (-), dan garis bawah (_).',
+            'username.unique' => 'Username ini sudah terdaftar untuk pengguna lain.',
             'role.required' => 'Peran wajib dipilih.',
             'password.required' => 'Kata sandi wajib diisi.',
             'password.min' => 'Kata sandi minimal terdiri dari 8 karakter.',
@@ -59,7 +59,7 @@ class UserController extends Controller
 
         User::create([
             'nama' => $request->name,
-            'email' => $request->email,
+            'username' => $request->username,
             'role' => ucwords($request->role),
             'password' => Hash::make($request->password),
         ]);
@@ -73,28 +73,33 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
 
+        // Jika mengedit akun sendiri, kunci peran agar tetap sama
+        if (Auth::user()->id_user == $user->id_user) {
+            $request->merge(['role' => $user->role]);
+        }
+
         $request->merge([
             'name' => trim($request->name ?? ''),
-            'email' => strtolower(trim($request->email ?? '')),
+            'username' => strtolower(trim($request->username ?? '')),
         ]);
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $id . ',id_user',
+            'username' => 'required|string|max:50|alpha_dash|unique:users,username,' . $id . ',id_user',
             'role' => 'required|string',
             'password' => 'nullable|string|min:8',
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
-            'email.required' => 'Alamat email wajib diisi.',
-            'email.email' => 'Format alamat email tidak valid.',
-            'email.unique' => 'Alamat email ini sudah terdaftar untuk pengguna lain.',
+            'username.required' => 'Username wajib diisi.',
+            'username.alpha_dash' => 'Username hanya boleh berisi huruf, angka, strip (-), dan garis bawah (_).',
+            'username.unique' => 'Username ini sudah terdaftar untuk pengguna lain.',
             'role.required' => 'Peran wajib dipilih.',
             'password.min' => 'Kata sandi minimal terdiri dari 8 karakter.',
         ]);
 
         $userData = [
             'nama' => $request->name,
-            'email' => $request->email,
+            'username' => $request->username,
             'role' => ucwords($request->role),
         ];
 

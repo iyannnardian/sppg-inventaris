@@ -181,22 +181,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             @if(strtolower(Auth::user()->role ?? '') !== 'kepala dapur')
-            // Auto-fill Prefix Kode Sub-Kategori saat pilih Kategori Induk di modal Tambah Sub-Kategori
-            const selectKategoriIndukCreate = document.getElementById('id_kategori');
-            const inputKodeSubCreate = document.getElementById('kode_subkategori');
-
-            if (selectKategoriIndukCreate && inputKodeSubCreate) {
-                selectKategoriIndukCreate.addEventListener('change', function () {
-                    const selectedOption = this.options[this.selectedIndex];
-                    const kodeKat = selectedOption ? selectedOption.getAttribute('data-kode') : null;
-                    if (kodeKat && kodeKat.trim() !== '') {
-                        const prefix = kodeKat.trim() + '.';
-                        inputKodeSubCreate.value = prefix;
-                        inputKodeSubCreate.focus();
-                    }
-                });
-            }
-
             // Script Edit Kategori Utama
             const editUtamaButtons = document.querySelectorAll('.btn-edit-utama');
             const formEditUtama = document.getElementById('formEditKategoriUtama');
@@ -218,9 +202,28 @@
             // Script Edit Sub-Kategori
             const editSubButtons = document.querySelectorAll('.btn-edit-sub');
             const formEditSub = document.getElementById('formEditSubKategori');
-            const selectKategoriInduk = document.getElementById('edit_id_kategori_induk');
-            const inputKodeSub = document.getElementById('edit_kode_subkategori');
+            const selectKategoriIndukEdit = document.getElementById('edit_id_kategori_induk');
+            const inputKodeSubEdit = document.getElementById('edit_kode_subkategori');
             const inputNamaSub = document.getElementById('edit_nama_subkategori');
+
+            function updateEditKodeSuffix() {
+                if (!selectKategoriIndukEdit || !inputKodeSubEdit) return;
+                const selectedOption = selectKategoriIndukEdit.options[selectKategoriIndukEdit.selectedIndex];
+                const parentKode = selectedOption ? selectedOption.getAttribute('data-kode') : null;
+                let rawKode = inputKodeSubEdit.getAttribute('data-full-kode') || inputKodeSubEdit.value || '';
+                
+                if (parentKode && parentKode.trim() !== '') {
+                    const prefix = parentKode.trim() + '.';
+                    if (rawKode.startsWith(prefix)) {
+                        rawKode = rawKode.substring(prefix.length);
+                    }
+                }
+                inputKodeSubEdit.value = rawKode;
+            }
+
+            if (selectKategoriIndukEdit) {
+                selectKategoriIndukEdit.addEventListener('change', updateEditKodeSuffix);
+            }
 
             editSubButtons.forEach(button => {
                 button.addEventListener('click', function () {
@@ -230,8 +233,11 @@
                     const nama = this.getAttribute('data-nama');
 
                     formEditSub.setAttribute('action', `/sub-kategori/${id}`);
-                    selectKategoriInduk.value = idKategori;
-                    inputKodeSub.value = kode ?? '';
+                    selectKategoriIndukEdit.value = idKategori;
+                    inputKodeSubEdit.setAttribute('data-full-kode', kode ?? '');
+                    
+                    updateEditKodeSuffix();
+
                     inputNamaSub.value = nama ?? '';
                 });
             });

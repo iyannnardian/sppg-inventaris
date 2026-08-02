@@ -214,61 +214,97 @@
             </div>
         @endif
 
-        <!-- Form Login -->
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-
-            <!-- Input Email -->
-            <div class="form-group">
-                <label for="email" class="form-label">Email</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    class="form-input @error('email') is-invalid @enderror" 
-                    placeholder="Masukkan Email anda" 
-                    value="{{ old('email') }}" 
-                    required 
-                    autofocus 
-                    autocomplete="email"
-                >
-                @error('email')
-                    <div class="error-message">
-                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="display:inline-block; vertical-align:middle;">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
-                        </svg>
-                        {{ $message }}
+        @if (session('active_session_found'))
+            <div class="alert alert-warning" style="background-color: #fffbe6; border: 1.5px solid #ffe58f; color: #8c6b00; padding: 20px; border-radius: 10px; text-align: left; margin-bottom: 25px; animation: fadeIn 0.4s ease-out;">
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 15px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d48806" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <div>
+                        <strong style="font-size: 15px; display: block; color: #d48806; margin-bottom: 6px;">Akun Sedang Aktif di Perangkat Lain!</strong>
+                        <p style="font-size: 13px; color: #595959; line-height: 1.5; margin: 0;">
+                            Akun <strong>{{ old('username') }}</strong> saat ini sedang login di perangkat/browser lain. Apakah Anda yakin ingin mengeluarkan (kick) akun tersebut dari perangkat lain dan login di sini?
+                        </p>
                     </div>
-                @enderror
-            </div>
+                </div>
 
-            <!-- Input Password -->
-            <div class="form-group" style="margin-bottom: 25px;">
-                <label for="password" class="form-label">Password</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="form-input @error('password') is-invalid @enderror" 
-                    placeholder="Masukkan password anda" 
-                    required 
-                    autocomplete="current-password"
-                >
-                @error('password')
-                    <div class="error-message">
-                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="display:inline-block; vertical-align:middle;">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
-                        </svg>
-                        {{ $message }}
-                    </div>
-                @enderror
-            </div>
+                <form method="POST" action="{{ route('login') }}" style="margin-top: 15px;">
+                    @csrf
+                    <input type="hidden" name="username" value="{{ old('username') }}">
+                    <input type="hidden" name="password" value="{{ old('password') }}">
+                    <input type="hidden" name="confirm_kick" value="1">
 
-            <!-- Tombol Submit -->
-            <button type="submit" class="submit-btn">Masuk</button>
-        </form>
+                    <button type="submit" class="submit-btn" style="background-color: #d48806; color: #ffffff; margin-top: 0; width: 100%; font-size: 14px; padding: 13px;">
+                        Ya, Keluarkan Perangkat Lain & Login
+                    </button>
+                    <a href="{{ route('login') }}" style="display: block; text-align: center; margin-top: 12px; font-size: 13px; color: #595959; text-decoration: none; font-weight: 600;">
+                        Batal
+                    </a>
+                </form>
+            </div>
+        @else
+            <!-- Form Login -->
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+
+                <!-- Input Username -->
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        class="form-input @error('username') is-invalid @enderror" 
+                        placeholder="Masukkan username anda" 
+                        value="{{ old('username') }}" 
+                        required 
+                        oninvalid="this.setCustomValidity('Harap masukkan username anda')" 
+                        oninput="this.setCustomValidity('')" 
+                        autofocus 
+                        autocomplete="username"
+                    >
+                    @error('username')
+                        <div class="error-message">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="display:inline-block; vertical-align:middle;">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                            </svg>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <!-- Input Password -->
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label for="password" class="form-label">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input @error('password') is-invalid @enderror" 
+                        placeholder="Masukkan password anda" 
+                        required 
+                        oninvalid="this.setCustomValidity('Harap masukkan password anda')" 
+                        oninput="this.setCustomValidity('')" 
+                        autocomplete="current-password"
+                    >
+                    @error('password')
+                        <div class="error-message">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="display:inline-block; vertical-align:middle;">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                            </svg>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <!-- Tombol Submit -->
+                <button type="submit" class="submit-btn">Masuk</button>
+            </form>
+        @endif
     </div>
 
 </body>

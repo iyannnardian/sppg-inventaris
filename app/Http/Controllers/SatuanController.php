@@ -31,22 +31,36 @@ class SatuanController extends Controller
             abort(403, 'Akses ditolak. Peran Kepala Dapur tidak memiliki wewenang untuk tindakan ini.');
         }
 
-        // Trim input agar tidak lolos karena spasi tambahan
+        $namaSatuan = trim($request->nama_satuan ?? '');
+        $keterangan = $request->keterangan ? trim($request->keterangan) : null;
+
         $request->merge([
-            'nama_satuan' => trim($request->nama_satuan ?? ''),
-            'keterangan' => $request->keterangan ? trim($request->keterangan) : null,
+            'nama_satuan' => $namaSatuan,
+            'keterangan' => $keterangan,
         ]);
 
         $request->validate([
-            'nama_satuan' => 'required|string|max:50|unique:satuans,nama_satuan',
-            'keterangan' => 'nullable|string|max:255|unique:satuans,keterangan',
+            'nama_satuan' => 'required|string|max:50',
+            'keterangan' => 'nullable|string|max:255',
         ], [
-            'nama_satuan.required' => 'Nama satuan wajib diisi.',
-            'nama_satuan.max' => 'Nama satuan maksimal 50 karakter.',
-            'nama_satuan.unique' => 'Nama satuan (singkatan/kode) sudah terdaftar.',
-            'keterangan.max' => 'Keterangan maksimal 255 karakter.',
-            'keterangan.unique' => 'Keterangan/deskripsi satuan ini sudah terdaftar.',
+            'nama_satuan.required' => 'Kode satuan wajib diisi.',
+            'nama_satuan.max' => 'Kode satuan maksimal 50 karakter.',
+            'keterangan.max' => 'Nama satuan maksimal 255 karakter.',
         ]);
+
+        // Cek duplikasi silang & case-insensitive untuk Kode Satuan
+        $existingKode = Satuan::whereRaw('LOWER(nama_satuan) = ? OR LOWER(keterangan) = ?', [strtolower($namaSatuan), strtolower($namaSatuan)])->first();
+        if ($existingKode) {
+            return redirect()->back()->withInput()->withErrors(['nama_satuan' => 'Kode atau Nama Satuan "' . $namaSatuan . '" sudah terdaftar pada sistem.']);
+        }
+
+        // Cek duplikasi silang & case-insensitive untuk Nama Satuan
+        if ($keterangan) {
+            $existingKet = Satuan::whereRaw('LOWER(nama_satuan) = ? OR LOWER(keterangan) = ?', [strtolower($keterangan), strtolower($keterangan)])->first();
+            if ($existingKet) {
+                return redirect()->back()->withInput()->withErrors(['keterangan' => 'Nama atau Kode Satuan "' . $keterangan . '" sudah terdaftar pada sistem.']);
+            }
+        }
 
         Satuan::create([
             'nama_satuan' => $request->nama_satuan,
@@ -64,22 +78,44 @@ class SatuanController extends Controller
 
         $satuan = Satuan::findOrFail($id);
 
-        // Trim input agar tidak lolos karena spasi tambahan
+        $namaSatuan = trim($request->nama_satuan ?? '');
+        $keterangan = $request->keterangan ? trim($request->keterangan) : null;
+
         $request->merge([
-            'nama_satuan' => trim($request->nama_satuan ?? ''),
-            'keterangan' => $request->keterangan ? trim($request->keterangan) : null,
+            'nama_satuan' => $namaSatuan,
+            'keterangan' => $keterangan,
         ]);
 
         $request->validate([
-            'nama_satuan' => 'required|string|max:50|unique:satuans,nama_satuan,' . $id . ',id_satuan',
-            'keterangan' => 'nullable|string|max:255|unique:satuans,keterangan,' . $id . ',id_satuan',
+            'nama_satuan' => 'required|string|max:50',
+            'keterangan' => 'nullable|string|max:255',
         ], [
-            'nama_satuan.required' => 'Nama satuan wajib diisi.',
-            'nama_satuan.max' => 'Nama satuan maksimal 50 karakter.',
-            'nama_satuan.unique' => 'Nama satuan (singkatan/kode) sudah terdaftar.',
-            'keterangan.max' => 'Keterangan maksimal 255 karakter.',
-            'keterangan.unique' => 'Keterangan/deskripsi satuan ini sudah terdaftar.',
+            'nama_satuan.required' => 'Kode satuan wajib diisi.',
+            'nama_satuan.max' => 'Kode satuan maksimal 50 karakter.',
+            'keterangan.max' => 'Nama satuan maksimal 255 karakter.',
         ]);
+
+        // Cek duplikasi silang & case-insensitive untuk update Kode Satuan
+        $existingKode = Satuan::where('id_satuan', '!=', $id)
+            ->where(function ($q) use ($namaSatuan) {
+                $q->whereRaw('LOWER(nama_satuan) = ?', [strtolower($namaSatuan)])
+                  ->orWhereRaw('LOWER(keterangan) = ?', [strtolower($namaSatuan)]);
+            })->first();
+        if ($existingKode) {
+            return redirect()->back()->withInput()->withErrors(['nama_satuan' => 'Kode atau Nama Satuan "' . $namaSatuan . '" sudah terdaftar pada sistem.']);
+        }
+
+        // Cek duplikasi silang & case-insensitive untuk update Nama Satuan
+        if ($keterangan) {
+            $existingKet = Satuan::where('id_satuan', '!=', $id)
+                ->where(function ($q) use ($keterangan) {
+                    $q->whereRaw('LOWER(nama_satuan) = ?', [strtolower($keterangan)])
+                      ->orWhereRaw('LOWER(keterangan) = ?', [strtolower($keterangan)]);
+                })->first();
+            if ($existingKet) {
+                return redirect()->back()->withInput()->withErrors(['keterangan' => 'Nama atau Kode Satuan "' . $keterangan . '" sudah terdaftar pada sistem.']);
+            }
+        }
 
         $satuan->update([
             'nama_satuan' => $request->nama_satuan,

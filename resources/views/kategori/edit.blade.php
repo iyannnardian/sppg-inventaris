@@ -13,8 +13,8 @@
                 @method('PUT')
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="edit_kode_kategori">Kode Kategori</label>
-                        <input type="text" class="form-control" id="edit_kode_kategori" name="kode_kategori" placeholder="Opsional (misal: KH atau KH.01)" autocomplete="off">
+                        <label for="edit_kode_kategori">Kode Kategori<span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit_kode_kategori" name="kode_kategori" required autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label for="edit_nama_kategori">Nama Kategori <span class="text-danger">*</span></label>

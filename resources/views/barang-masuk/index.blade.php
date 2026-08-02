@@ -284,7 +284,7 @@
                     tr.className = 'baris-item';
                     tr.innerHTML = `
                         <td style="padding: 3px 4px;">
-                            <select class="form-control select-barang" name="items[${itemIndex}][id_barang]" required style="border-radius: 8px;">
+                            <select class="form-control select-barang" name="items[${itemIndex}][id_barang]" required oninvalid="this.setCustomValidity('Silakan pilih barang.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;">
                                 ${barangOptionsHtml}
                             </select>
                         </td>
@@ -292,10 +292,10 @@
                             <span class="badge badge-light border info-satuan-item py-2 px-2 d-block text-center font-weight-normal text-secondary" style="border-radius: 8px; font-size: 13px;">-</span>
                         </td>
                         <td style="padding: 3px 4px;">
-                            <input type="text" class="form-control input-qty" name="items[${itemIndex}][qty]" placeholder="1.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
+                            <input type="text" class="form-control input-qty" name="items[${itemIndex}][qty]" placeholder="1.000" required oninvalid="this.setCustomValidity('Jumlah (QTY) wajib diisi.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                         </td>
                         <td style="padding: 3px 4px;">
-                            <input type="text" class="form-control input-harga" name="items[${itemIndex}][harga]" placeholder="12.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
+                            <input type="text" class="form-control input-harga" name="items[${itemIndex}][harga]" placeholder="12.000" required oninvalid="this.setCustomValidity('Harga satuan wajib diisi.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                         </td>
                         <td class="text-right align-middle" style="padding: 3px 4px;">
                             <span class="font-weight-bold text-dark input-subtotal-text">Rp 0</span>
@@ -549,7 +549,7 @@
                 tr.className = 'edit-baris-item';
                 tr.innerHTML = `
                     <td style="padding: 3px 4px;">
-                        <select class="form-control edit-select-barang" name="items[${editItemIndex}][id_barang]" required style="border-radius: 8px;">
+                        <select class="form-control edit-select-barang" name="items[${editItemIndex}][id_barang]" required oninvalid="this.setCustomValidity('Silakan pilih barang.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;">
                             ${barangOptionsHtml}
                         </select>
                     </td>
@@ -557,10 +557,10 @@
                         <span class="badge badge-light border edit-info-satuan-item py-2 px-2 d-block text-center font-weight-normal text-secondary" style="border-radius: 8px; font-size: 13px;">-</span>
                     </td>
                     <td style="padding: 3px 4px;">
-                        <input type="text" class="form-control edit-input-qty" name="items[${editItemIndex}][qty]" value="${valQty}" placeholder="1.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
+                        <input type="text" class="form-control edit-input-qty" name="items[${editItemIndex}][qty]" value="${valQty}" placeholder="1.000" required oninvalid="this.setCustomValidity('Jumlah (QTY) wajib diisi.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                     </td>
                     <td style="padding: 3px 4px;">
-                        <input type="text" class="form-control edit-input-harga" name="items[${editItemIndex}][harga]" value="${valHarga}" placeholder="12.000" required style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
+                        <input type="text" class="form-control edit-input-harga" name="items[${editItemIndex}][harga]" value="${valHarga}" placeholder="12.000" required oninvalid="this.setCustomValidity('Harga satuan wajib diisi.')" oninput="this.setCustomValidity('')" style="border-radius: 8px;" inputmode="numeric" autocomplete="off">
                     </td>
                     <td class="text-right align-middle" style="padding: 3px 4px;">
                         <span class="font-weight-bold text-dark edit-input-subtotal-text">Rp 0</span>
